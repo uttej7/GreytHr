@@ -787,7 +787,16 @@ main .btn-send:hover {
   
   .list-users .item {
 	display: flex;
-	margin-top: 3rem; }
+	/* margin-top: 3rem;  */
+	padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+	padding-left: 15px;
+}
+.list-users .item:hover {
+	background-color: #e1e1e1;
+	cursor: pointer;
+	border-radius: 8px;
+}
 	.list-users .item.active .actions .btn {
 	  color: #02114f;
 	  background: linear-gradient(0deg, rgba(77, 76, 172, 0.1), rgba(77, 76, 172, 0.1)), #FFFFFF; }
@@ -864,7 +873,7 @@ main .btn-send:hover {
 	  align-items: center;
 	  justify-content: space-between;
 	  border-bottom: 1px solid #ECEEF5;
-	  height: 84px; }
+	  height: 75px; }
 	  .box-info-content .top .item {
 		margin-left: 10px; }
 		.box-info-content .top .item:first-child {
@@ -1047,7 +1056,7 @@ main .btn-send:hover {
 		flex: 1;
 		padding: 10px;
 		overflow: auto;
-	  height: calc(100vh - 212px);
+	  height: calc(100vh - 143px);
 	}
 	
 	.chat-footer {
