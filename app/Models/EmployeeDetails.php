@@ -133,11 +133,16 @@ class EmployeeDetails extends Authenticatable
     {
         return $this->belongsTo(Company::class, 'company_id', 'company_id');
     }
-
+  
     public function employee()
     {
         return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
     }
+    public function emp()
+    {
+        return $this->belongsTo(EmployeeDetails::class, 'emp_id', 'emp_id');
+    }
+
 
     // public function sendPasswordResetNotification($token)
     // {
@@ -157,15 +162,6 @@ class EmployeeDetails extends Authenticatable
     {
         return $this->hasMany(Message::class, 'receiver_id');
     }
-
-    // public function messages()
-    // {
-    //     return $this->hasMany(Message::class, 'sender_id')
-    //         ->orWhere(function ($query) {
-    //             $query->where('receiver_id', $this->emp_id);
-    //         });
-    // }
-
 
     // Conversations the employee is part of
     public function conversations()

@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('file_name')->nullable();
             $table->string('mime_type')->nullable();
             $table->string('cc_to')->nullable();
-            $table->string('status')->default('Recent');
+            $table->tinyInteger('status_code')->default(8);
             $table->string('selected_equipment')->nullable();
             $table->enum('priority', ['High', 'Medium', 'Low']);
             $table->timestamps();
@@ -43,29 +43,32 @@ return new class extends Migration
 
         // Creating the trigger to auto-generate request_id
         DB::statement("
-            CREATE TRIGGER generate_request_id BEFORE INSERT ON help_desks FOR EACH ROW
-            BEGIN
-                DECLARE max_id INT;
-
-                -- Fixed prefix for request_id
-                SET @prefix = 'REQ-';
-
-                IF NEW.request_id IS NULL OR NEW.request_id = '' THEN
-                    -- Find the maximum existing request_id
-                    SELECT MAX(CAST(SUBSTRING(request_id, LENGTH(@prefix) + 1) AS UNSIGNED)) INTO max_id 
-                    FROM help_desks 
-                    WHERE request_id LIKE CONCAT(@prefix, '%');
-
-                    IF max_id IS NOT NULL THEN
-                        -- Increment the counter
-                        SET NEW.request_id = CONCAT(@prefix, LPAD(max_id + 1, 4, '0'));
-                    ELSE
-                        -- No existing requests, start from 0001
-                        SET NEW.request_id = CONCAT(@prefix, '0001');
-                    END IF;
+        CREATE TRIGGER generate_request_id BEFORE INSERT ON help_desks FOR EACH ROW
+        BEGIN
+            DECLARE max_id INT;
+    
+            -- Fixed prefix for request_id
+            SET @prefix = 'REQ-';
+    
+            -- If request_id is not provided, generate it
+            IF NEW.request_id IS NULL OR NEW.request_id = '' THEN
+                -- Find the maximum existing request_id
+                SELECT MAX(CAST(SUBSTRING(request_id, LENGTH(@prefix) + 1) AS UNSIGNED)) 
+                INTO max_id 
+                FROM help_desks 
+                WHERE request_id LIKE CONCAT(@prefix, '%');
+    
+                IF max_id IS NOT NULL THEN
+                    -- Increment the counter and set the new request_id
+                    SET NEW.request_id = CONCAT(@prefix, LPAD(max_id + 1, 4, '0'));
+                ELSE
+                    -- No existing requests, start from 0001
+                    SET NEW.request_id = CONCAT(@prefix, '0001');
                 END IF;
-            END;
-        ");
+            END IF;
+        END;
+    ");
+    
     }
 
     /**

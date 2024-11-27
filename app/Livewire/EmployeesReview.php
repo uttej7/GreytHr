@@ -38,6 +38,8 @@ class EmployeesReview extends Component
     public $showleave = false;
     public $approvedRegularisationRequestList;
     public $count;
+
+    public $openAccordionsForClosed=[];
     public $approvedLeaveApplicationsList;
     public $empLeaveRequests;
     public $activeContent, $leaveRequests;
@@ -431,6 +433,16 @@ class EmployeesReview extends Component
         $this->searching = 1;
     }
 
+    public function toggleActiveAccordion($id)
+    {
+            if (in_array($id, $this->openAccordionsForClosed)) {
+                // Remove from open accordions if already open
+                $this->openAccordionsForClosed = array_diff($this->openAccordionsForClosed, [$id]);
+            } else {
+                // Add to open accordions if not open
+                $this->openAccordionsForClosed[] = $id;
+            }
+    }
     public function render()
     {
         $this->getApprovedLeaveRequests();

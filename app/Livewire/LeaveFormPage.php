@@ -265,51 +265,51 @@ class LeaveFormPage extends Component
         try {
             // Find the leave request by ID
             $leaveRequest = LeaveRequest::find($leaveRequestId);
-    
+
             // Check if leave request exists
             if (!$leaveRequest) {
                 throw new \Exception("Leave request not found.");
             }
-    
+
             // Retrieve the status code for 'Withdrawn' from StatusType
             $withdrawnStatus = StatusType::where('status_name', 'Withdrawn')->first();
-    
+
             // Check if the status code exists
             if (!$withdrawnStatus) {
                 throw new \Exception("Withdrawn status not found.");
             }
-    
+
             // Update status to the corresponding status code
             $leaveRequest->leave_status = $withdrawnStatus->status_code;
             $leaveRequest->updated_at = now();
             $leaveRequest->save();
-    
+
             // Decode the JSON data from applying_to to get the email
             $applyingToDetailsArray = json_decode($leaveRequest->applying_to, true); // Decode as an associative array
             $ccToDetailsArray = json_decode($leaveRequest->cc_to, true); // Decode cc_to
             $applyingToEmail = null;
             $ccToEmail = null;
-    
+
             // Extract the applying-to email if available
             if (!empty($applyingToDetailsArray) && isset($applyingToDetailsArray[0]['email'])) {
                 $applyingToEmail = $applyingToDetailsArray[0]['email']; // Access the email
             }
-    
+
             // Extract the CC email if available
             if (!empty($ccToDetailsArray) && isset($ccToDetailsArray[0]['email'])) {
                 $ccToEmail = $ccToDetailsArray[0]['email']; // Access the email
             }
-    
+
             // Send notification email if the email exists
             if (!empty($applyingToEmail) || !empty($ccToEmail)) {
                 // Initialize the mail
                 $mail = Mail::to($applyingToEmail); // Send to the applying to email first
-    
+
                 // Add the cc email if available
                 if (!empty($ccToEmail)) {
                     $mail->cc($ccToEmail); // Add CC email
                 }
-    
+
                 // Send the leave withdrawal notification email
                 $mail->send(new LeaveApprovalNotification(
                     $leaveRequest,        // Leave request object
@@ -318,7 +318,7 @@ class LeaveFormPage extends Component
                     false                 // Set forMainRecipient to false (since this is not for the main applicant)
                 ));
             }
-    
+
             $this->hasPendingLeave();
             FlashMessageHelper::flashSuccess('Leave application Withdrawn.');
         } catch (\Exception $e) {
@@ -335,12 +335,12 @@ class LeaveFormPage extends Component
             $employeeId = auth()->guard('emp')->user()->emp_id;
             // Find the leave request by ID
             $leaveRequest = LeaveRequest::find($leaveRequestId);
-    
+
             // Check if leave request exists
             if (!$leaveRequest) {
                 throw new \Exception("Leave request not found.");
             }
-    
+
             // Find any other leave request matching from_date, from_session, to_date, to_session
             $matchingLeaveRequest = LeaveRequest::where('emp_id', $leaveRequest->emp_id)
                 ->where('from_date', $leaveRequest->from_date)
@@ -349,7 +349,7 @@ class LeaveFormPage extends Component
                 ->where('to_session', $leaveRequest->to_session)
                 ->where('leave_status', '!=', 6)
                 ->first();
-            
+
             if ($matchingLeaveRequest) {
                 // Update the matching request status to 'rejected'
                 $matchingLeaveRequest->cancel_status = 4; // Mark as withdrawn
@@ -357,32 +357,32 @@ class LeaveFormPage extends Component
                 $matchingLeaveRequest->action_by = $employeeId;
                 $matchingLeaveRequest->save();
             }
-    
+
             // Update the current leave request status to 'withdrawn'
             $leaveRequest->cancel_status = 4;  // Withdrawn
             $leaveRequest->leave_status = 3;   // Rejected
             $leaveRequest->updated_at = now();
             $leaveRequest->action_by = $employeeId;
             $leaveRequest->save();
-    
+
             // Decode the JSON data from applying_to to get the email
             $applyingToDetailsArray = json_decode($leaveRequest->applying_to, true); // Decode as an associative array
             $applyingToEmail = null;
-    
+
             // Check if the array is not empty and access the email from the first element
             if (!empty($applyingToDetailsArray) && isset($applyingToDetailsArray[0]['email'])) {
                 $applyingToEmail = $applyingToDetailsArray[0]['email']; // Access the email
             }
-    
+
             // Decode CC recipients
             $ccToDetailsArray = json_decode($leaveRequest->cc_to, true); // Decode CC recipients
             $ccToEmail = null;
-    
+
             // Extract CC email if available
             if (!empty($ccToDetailsArray) && isset($ccToDetailsArray[0]['email'])) {
                 $ccToEmail = $ccToDetailsArray[0]['email'];
             }
-    
+
             // Send notification email if the email exists
             if ($applyingToEmail) {
                 $mail = Mail::to($applyingToEmail); // Send to the applying-to email first
@@ -400,7 +400,7 @@ class LeaveFormPage extends Component
                     false                 // Set forMainRecipient to false (since this is not for the main applicant)
                 ));
             }
-    
+
             $this->hasPendingLeave();
             // Flash success message
             FlashMessageHelper::flashSuccess('Leave application Cancelled and Withdrawn.');

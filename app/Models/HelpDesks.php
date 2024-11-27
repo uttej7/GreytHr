@@ -20,7 +20,19 @@ class HelpDesks extends Model
     {
         return $this->belongsTo(Request::class, 'emp_id');// Update the foreign key as necessary
     }
- 
+ // HelpDesks Model
+ public function incidentRequests()
+ {
+     return $this->hasMany(IncidentRequest::class, 'incident_id', 'emp_id');
+ }
+ // In HelpDesks model (HelpDesks.php)
+// In HelpDesks model (HelpDesks.php)
+public function status()
+{
+    return $this->belongsTo(StatusType::class, 'status_code', 'status_code');
+}
+
+
     public function isImage()
     {
         return 'data:image/jpeg;base64,' . base64_encode($this->attributes['file_path']);

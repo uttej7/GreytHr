@@ -23,7 +23,7 @@ class ChatList extends Component
 
     public function chatUserSelected($senderId, $receiverId)
     {
-
+        // dd($senderId, $receiverId);
         // Fetch the conversation between the two users
         $this->selectedConversation = Conversation::where(function ($query) use ($senderId, $receiverId) {
             $query->where('sender_id', $senderId)
@@ -34,31 +34,11 @@ class ChatList extends Component
         })->first();
         $receiverInstance = EmployeeDetails::find($receiverId);
         $this->dispatch('loadConversation', $this->selectedConversation, $receiverInstance);
-        // $this->emitTo('chat.send-message', 'updateSendMessage', $this->selectedConversation, $receiverInstance);
+        $this->dispatch('updateSendMessage', $this->selectedConversation, $receiverInstance);
 
         # code...
     }
 
-    // public function getChatUserInstance(Conversation $conversation, $request)
-    // {
-    //     # code...
-    //     dd('hello');
-    //     $this->auth_id = auth()->id();
-    //     //get selected conversation
-
-    //     if ($conversation->sender_id == $this->auth_id) {
-    //         $this->receiverInstance = EmployeeDetails::firstWhere('id', $conversation->receiver_id);
-    //         # code...
-    //     } else {
-    //         $this->receiverInstance = EmployeeDetails::firstWhere('id', $conversation->sender_id);
-    //     }
-
-    //     if (isset($request)) {
-
-    //         return $this->receiverInstance->$request;
-    //         # code...
-    //     }
-    // }
     // public function mount()
     // {
 
@@ -73,31 +53,32 @@ class ChatList extends Component
         // Get the authenticated user's ID
         $this->auth_id = auth()->id();
 
-        // Fetch all relevant conversations
-        $conversationIds = Conversation::where('sender_id', $this->auth_id)
-            ->orWhere('receiver_id', $this->auth_id)
-            ->pluck('id');
-
-        // Fetch employees involved in the conversations
-        $this->conversations = EmployeeDetails::whereIn('emp_id', function ($query) {
-            $query->select('receiver_id')
-                ->from('conversations')
-                ->where('sender_id', $this->auth_id)
-                ->union(
-                    Conversation::select('sender_id')
-                        ->where('receiver_id', $this->auth_id)
-                );
-        })
+        // Fetch conversations with related employee details
+        $this->conversations = Conversation::with(['sender', 'receiver'])
+            ->where(function ($query) {
+                $query->where('sender_id', $this->auth_id)
+                    ->orWhere('receiver_id', $this->auth_id);
+            })
             ->when($this->search, function ($query) {
-                $query->where(function ($subQuery) {
+                $query->whereHas('sender', function ($subQuery) {
+                    $subQuery->where('first_name', 'like', '%' . $this->search . '%')
+                        ->orWhere('last_name', 'like', '%' . $this->search . '%')
+                        ->orWhere('email', 'like', '%' . $this->search . '%')
+                        ->orWhere('job_role', 'like', '%' . $this->search . '%');
+                })->orWhereHas('receiver', function ($subQuery) {
                     $subQuery->where('first_name', 'like', '%' . $this->search . '%')
                         ->orWhere('last_name', 'like', '%' . $this->search . '%')
                         ->orWhere('email', 'like', '%' . $this->search . '%')
                         ->orWhere('job_role', 'like', '%' . $this->search . '%');
                 });
             })
-            ->orderBy('updated_at', 'DESC') // Sort by last activity
+            ->orderBy('last_time_message', 'DESC') // Assuming conversations have a field to track the last message time
             ->get();
+
+        // Filter conversations to only include those with employees matching the search
+        $this->conversations = $this->conversations->filter(function ($conversation) {
+            return $conversation->sender->first_name || $conversation->receiver->last_name; // Filtering logic.
+        });
 
         return view('livewire.chat.chat-list', [
             'conversations' => $this->conversations,

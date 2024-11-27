@@ -14,174 +14,7 @@
                 Back
             </button>
         </div>
-        <div class="col-md-8 mb-2">
-            <div class="newReq">
-                <button class="submit-btn" wire:click="ServiceRequest">
-                    Service Request
-                </button>
-                <button class="submit-btn" wire:click="incidentRequest">
-                    Incident Request
-                </button>
-            </div>
-        </div>
-        <!-- modals for service requst -->
-        @if($ServiceRequestaceessDialog)
-        <div class="modal" tabindex="-1" role="dialog" style="{{ $showModal ? 'display: block;' : 'display: none;' }}">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Create Service Request</h1>
-                    </div>
-                    <div class="modal-body">
 
-                        <form wire:submit.prevent="createServiceRequest" style="width:80%">
-
-                            <div class="form-group  mt-2">
-                                <label for="Name">Requested By:</label>
-
-
-                                <div class="input-group mb-3">
-
-
-
-                                    <span class="input-group-text" id="basic-addon2"><i class="fa fa-info-circle" style="color:blue"></i></span> <!-- Change label as needed -->
-                                    @if($employeeDetails)
-                                    <input wire:model.lazy="full_name" type="text" class="form-control" aria-describedby="basic-addon1" readonly>
-                                    @else
-                                    <p>No employee details found.</p>
-                                    @endif
-                                </div>
-
-                            </div>
-
-
-                            <!-- Short Description -->
-                            <div class="form-group mt-2">
-                                <label for="short_description">Short Description <span style="color:red">*</span></label>
-                                <input wire:model.lazy="short_description" type="text" class="form-control" id="short_description">
-                                @error('short_description') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Priority -->
-                            <div class="form-group mt-2">
-                                <label for="priority">Urgency <span style="color:red">*</span></label>
-                                <select wire:model.lazy="priority" class="form-control" id="priority">
-                                    <option value="" hidden>Select Priority</option>
-                                    <option value="Low">Low</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="High">High</option>
-                                </select>
-                                @error('priority') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Description -->
-                            <div class="form-group mt-2">
-                                <label for="description">Please describe your issue below <span style="color:red">*</span></label>
-                                <textarea wire:model.lazy="description" class="form-control" id="description"></textarea>
-                                @error('description') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- File Upload -->
-                            <div class="form-group mt-2">
-                                <label for="file_path" style="color:#778899; font-weight:500; font-size:12px;">
-                                    <i class="fa fa-paperclip"></i> Attach File
-                                </label>
-                                <input type="file" wire:model="file_path" id="file_path" class="form-control">
-                                @error('file_path') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-
-                        </form>
-                    </div>
-                    <div class="modal-footer justify-content-center">
-                        <div class="m-0 p-0 mt-3 d-flex gap-3 justify-content-center">
-                            <button type="button" wire:click="createServiceRequest" class="submit-btn">Submit</button>
-                            <button wire:click="resetIncidentFields" type="button" class="cancel-btn" style="border:1px solid rgb(2,17,79);">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-backdrop fade show blurred-backdrop" style="{{ $showModal ? '' : 'display: none;' }}"></div>
-        @endif
-        <!-- modals for incident requst -->
-        @if($incidentRequestaceessDialog)
-        <div class="modal" tabindex="-1" role="dialog" style="{{ $showModal ? 'display: block;' : 'display: none;' }}">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Create Incident Request</h1>
-                    </div>
-                    <div class="modal-body">
-
-                        <form wire:submit.prevent="createIncidentRequest" style="width:80%">
-
-                            <div class="form-group  mt-2">
-                                <label for="Name">Requested By:</label>
-
-
-                                <div class="input-group mb-3">
-
-
-
-                                    <span class="input-group-text" id="basic-addon2"><i class="fa fa-info-circle" style="color:blue"></i></span> <!-- Change label as needed -->
-                                    @if($employeeDetails)
-                                    <input wire:model.lazy="full_name" type="text" class="form-control" aria-describedby="basic-addon1" readonly>
-                                    @else
-                                    <p>No employee details found.</p>
-                                    @endif
-                                </div>
-
-                            </div>
-
-
-                            <!-- Short Description -->
-                            <div class="form-group mt-2">
-                                <label for="short_description">Short Description <span style="color:red">*</span></label>
-                                <input wire:model.lazy="short_description" type="text" class="form-control" id="short_description">
-                                @error('short_description') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Priority -->
-                            <div class="form-group mt-2">
-                                <label for="priority">Urgency <span style="color:red">*</span></label>
-                                <select wire:model.lazy="priority" class="form-control" id="priority">
-                                    <option value="" hidden>Select Priority</option>
-                                    <option value="Low">Low</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="High">High</option>
-                                </select>
-                                @error('priority') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- Description -->
-                            <div class="form-group mt-2">
-                                <label for="description">Please describe your issue below <span style="color:red">*</span></label>
-                                <textarea wire:model.lazy="description" class="form-control" id="description"></textarea>
-                                @error('description') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- File Upload -->
-                            <div class="form-group mt-2">
-                                <label for="file_path" style="color:#778899; font-weight:500; font-size:12px;">
-                                    <i class="fa fa-paperclip"></i> Attach File
-                                </label>
-                                <input type="file" wire:model="file_path" id="file_path" class="form-control">
-                                @error('file_path') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-
-                        </form>
-                    </div>
-                    <div class="modal-footer justify-content-center">
-                        <div class="m-0 p-0 mt-3 d-flex gap-3 justify-content-center">
-                            <button type="button" wire:click="createIncidentRequest" class="submit-btn">Submit</button>
-                            <button wire:click="resetIncidentFields" type="button" class="cancel-btn" style="border:1px solid rgb(2,17,79);">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-backdrop fade show blurred-backdrop" style="{{ $showModal ? '' : 'display: none;' }}"></div>
-        @endif
     </div>
     <div class="row mt-2">
         <div class="col-md-12 mb-4">
@@ -282,7 +115,7 @@
 
 
                                                             <!-- Dropdown toggle icon on the right side -->
-                                                            <button class="btn btn-outline-secondary dropdown-toggle" wire:click="NamesSearch" type="button" data-bs-toggle="dropdown">
+                                                            <button class="btn btn-outline-secondary dropdown-toggle" style="border:1px solid silver" wire:click="NamesSearch" type="button" data-bs-toggle="dropdown">
                                                             </button>
 
                                                         </div>
@@ -478,7 +311,7 @@
 
 
                                                             <!-- Dropdown toggle icon on the right side -->
-                                                            <button class="btn btn-outline-secondary dropdown-toggle" wire:click="NamesSearch" type="button" data-bs-toggle="dropdown">
+                                                            <button class="btn btn-outline-secondary dropdown-toggle" style="border:1px solid silver" wire:click="NamesSearch" type="button" data-bs-toggle="dropdown">
                                                             </button>
 
                                                         </div>
@@ -1073,7 +906,7 @@
 
 
                                                             <!-- Dropdown toggle icon on the right side -->
-                                                            <button class="btn btn-outline-secondary dropdown-toggle" wire:click="NamesSearch" type="button" data-bs-toggle="dropdown">
+                                                            <button class="btn btn-outline-secondary dropdown-toggle" wire:click="NamesSearch" type="button" style="border: 1px solid silver;" data-bs-toggle="dropdown">
                                                             </button>
 
                                                         </div>
@@ -1398,7 +1231,7 @@
 
 
                                                             <!-- Dropdown toggle icon on the right side -->
-                                                            <button class="btn btn-outline-secondary dropdown-toggle" wire:click="NamesSearch" type="button" data-bs-toggle="dropdown">
+                                                            <button class="btn btn-outline-secondary dropdown-toggle" style="border:1px solid silver" wire:click="NamesSearch" type="button" data-bs-toggle="dropdown">
                                                             </button>
 
                                                         </div>
@@ -1801,6 +1634,139 @@
                         </div>
 
                     </div>
+                    <div class="row m-0 p-0">
+                        <div class="col-md-4 mb-4">
+                            <div
+                                style="background:white; border:1px solid #d3d3d3; border-radius:5px; padding: 10px 15px;">
+                                <p style="font-size: 12px;"><b>Internet Access Request</b></p>
+                                <div class="row m-0">
+                                    <div class="col-12 text-center mb-2">
+                                        <!-- <img src="https://snow.payg.in/a9fa00e9871c7510279786a50cbb3525.iix?t=medium"
+                                                    style="height:4em;"> -->
+                                        <img src="images/it-images/internet_access.jpeg" style="height:4em;" />
+                                    </div>
+                                    <div class="col-12 mb-2" style="font-size:12px">
+                                        <p
+                                        id="showBtnDiv" style="text-decoration:underline;cursor: pointer; text-align: center;" wire:click="IntenetRequest">
+                                            Internet Access Request </p>
+                                    </div>
+                                    @if($InternetRequestaceessDialog)
+                                <div class="modal" tabindex="-1" role="dialog" style="{{ $showModal ? 'display: block;' : 'display: none;' }}">
+                                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel"> Internet Access Request</h1>
+
+                                            </div>
+
+                                            <div class="modal-body">
+                                                <div class="row m-0">
+                                                    <div class="col-4 m-auto">
+                                                        <img src="images/it-images/laptop.png" style="height:4em;" />
+                                                    </div>
+                                                    <div class="col-8 m-auto">
+                                                        <p style="font-size:15px;"> Internet Access Request</p>
+                                                    </div>
+                                                </div>
+                                                <hr style="border: 1px solid #ccc;margin: 10px 0;">
+                                                <form wire:submit.prevent="Devops">
+
+                                                    <div class="form-group  mt-2">
+                                                        <label for="Name">Requested By:</label>
+
+
+                                                        <div class="input-group mb-3">
+
+
+
+                                                            <span class="input-group-text" id="basic-addon2"><i class="fa fa-info-circle" style="color:blue"></i></span> <!-- Change label as needed -->
+                                                            @if($employeeDetails)
+                                                            <input wire:model.lazy="full_name" type="text" class="form-control" aria-describedby="basic-addon1" readonly>
+                                                            @else
+                                                            <p>No employee details found.</p>
+                                                            @endif
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div style="display:flex">
+
+
+                                                        <!-- Mobile Number -->
+                                                        <div class="form-group col-md-5 mt-2">
+                                                            <label for="mobile">Mobile Number <span style="color:red">*</span></label>
+                                                            <input type="text" id="mobile" class="form-control" wire:model="=mobile">
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="form-group mt-2">
+                                                        <label for="priority" class="helpdesk-label">Priority<span style="color:red">*</span></label>
+                                                        <div class="input" class="form-control placeholder-small">
+                                                            <div style="position: relative;">
+                                                                <select name="priority" id="priority" wire:keydown.debounce.500ms="validateField('priority')" wire:model.lazy="priority" style="font-size: 12px; " class="form-control placeholder-small">
+                                                                    <option style="color: grey;" value="" hidden>Select Priority</option>
+                                                                    <option value="Low">Low</option>
+                                                                    <option value="Medium">Medium</option>
+                                                                    <option value="High">High</option>
+
+
+                                                                </select>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                                                    class="bi bi-caret-down" viewBox="0 0 16 16" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); pointer-events: none;align-items :center">
+                                                                    <path d="M3.204 5h9.592L8 10.481 3.204 5z" />
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                        @error('priority') <span class="text-danger">{{ $message }}</span> @enderror
+                                                    </div>
+                                                    <div class="form-group mt-2">
+                                                        <label for="contactDetails">Business Justification<span style="color:red">*</span></label>
+                                                        <input wire:model.lazy="subject" wire:keydown.debounce.500ms="validateField('subject')" type="text" class="form-control">
+                                                        @error('subject') <span class="text-danger">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="form-group mt-2">
+                                                        <label for="reason">Specific Information<span style="color:red">*</span></label>
+                                                        <textarea wire:model.lazy="description" wire:keydown.debounce.500ms="validateField('description')" class="form-control"></textarea>
+                                                        @error('description') <span class="text-danger">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="row mt-2">
+                                                        <div class="col">
+                                                            <label for="fileInput" style="color:#778899;font-weight:500;font-size:12px;cursor:pointer;">
+                                                                <i class="fa fa-paperclip"></i> Attach Image
+                                                            </label>
+                                                        </div>
+                                                        @error('file_path') <span class="text-danger">{{ $message }}</span> @enderror
+                                                    </div>
+
+                                                    <div>
+                                                        <input type="file" wire:model="file_path" id="file_path" class="form-control">
+
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer justify-content-center">
+                                                <div class="m-0 p-0 mt-3 d-flex gap-3 justify-content-center">
+
+                                                    <button type="button" wire:click="Devops" class="submit-btn">Submit</button>
+
+                                                    <button wire:click="closecatalog" type="button" class="cancel-btn" style="border:1px solid rgb(2,17,79);">Cancel</button>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-backdrop fade show blurred-backdrop" style="{{ $showModal ? '' : 'display: none;' }}"></div>
+                                @endif
+                                </div>
+
+                            </div>
+                        </div>
+</div>
                 </div>
             </section>
 
@@ -1996,6 +1962,7 @@
                                 <p style="font-size: 12px">New SIM Request</p>
                             </td>
                         </tr>
+
                     </tbody>
                 </table>
             </section>

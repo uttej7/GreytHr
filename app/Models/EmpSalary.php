@@ -127,4 +127,62 @@ class EmpSalary extends Model
     {
         return $this->where('emp_id', $emp_id)->first();
     }
+
+    public function decodedSalary($value)
+    {
+        return $value ? $this->decodeCTC($value) : 0;
+    }
+    public function calculateSalaryComponents($value)
+    {
+        $gross = $value ? $this->decodeCTC($value) : 0;
+        // $gross=20853;
+
+        // Calculate each component
+        $basic =round($gross * 0.4200,2); // 41.96%
+        $hra =round($gross * 0.168,2);// 16.8%
+        $conveyance = round($gross * 0.0767,2); // 7.67%
+        $medicalAllowance = round($gross * 0.0600,2); // 5.99%
+        $specialAllowance = round($gross * 0.275,2); // 27.5%
+
+        $pf = round($gross * 0.0504,2); // 5.04%
+        $esi = round($gross * 0.00753,2); // 0.753%
+        $professionalTax = round($gross * 0.0096,2); // 0.96%
+
+        // Calculate total deductions
+        $totalDeductions =round( $pf + $esi + $professionalTax,2); //6.753%
+
+        // Calculate total
+        $total = round($basic + $hra + $conveyance + $medicalAllowance + $specialAllowance,2);
+
+        // Return all components and total
+        return [
+            'basic' => $basic,
+            'hra' => $hra,
+            'conveyance' => $conveyance,
+            'medical_allowance' => $medicalAllowance,
+            'special_allowance' => $specialAllowance,
+            'earnings' => $total,
+            'gross'=> $gross,
+            'pf' => $pf,
+            'esi' => $esi,
+            'professional_tax' => $professionalTax,
+            'total_deductions' => $totalDeductions,
+            'net_pay'=> $total- $totalDeductions
+        ];
+    }
+
+    private function decodeCTC($value)
+    {
+        Log::info('Decoding CTC: ' . $value);
+        $decoded = Hashids::decode($value);
+
+        if (count($decoded) === 0) {
+            return 0;
+        }
+
+        $integerValue = $decoded[0];
+        $decimalPlaces = $decoded[1] ?? 0;
+
+        return $integerValue / pow(10, $decimalPlaces);
+    }
 }

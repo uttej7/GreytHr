@@ -13,4 +13,16 @@ class Request extends Model
     {
         return $this->hasMany(HelpDesks::class);
     }
+    public function serviceRequest()
+    {
+        return $this->belongsTo(ServiceRequest::class);
+    }
+
+    /**
+     * Define a relationship with the IncidentRequest model.
+     */
+    public function incidentRequest()
+    {
+        return $this->belongsTo(IncidentRequest::class);
+    }
 }

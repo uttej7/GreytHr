@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\Conversation;
+use App\Models\EmployeeDetails;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
@@ -22,7 +23,7 @@ class MessageSent implements ShouldBroadcast
     public $conversation;
     public $receiver;
 
-    public function __construct(User $user, Message $message, Conversation $conversation, User $receiver)
+    public function __construct(EmployeeDetails $user, Message $message, Conversation $conversation, EmployeeDetails $receiver)
     {
 
         $this->user = $user;
@@ -36,7 +37,7 @@ class MessageSent implements ShouldBroadcast
     {
 
         return [
-            'user_id' => $this->user->id,
+            'user_id' => $this->user->emp_id,
             'message' => $this->message->id,
             'conversation_id' => $this->conversation->id,
             'receiver_id' => $this->receiver->id,

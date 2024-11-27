@@ -1,6 +1,6 @@
 <div class="position-relative">
     <div class="position-absolute" wire:loading
-        wire:target="leaveApply,toggleInfo,applyingTo,getFilteredManagers,openModal,toggleManager,openCcRecipientsContainer,closeCcRecipientsContainer,toggleSelection,searchCCRecipients,resetFields">
+        wire:target="leaveApply,toggleInfo,applyingTo,getFilteredManagers,openModal,toggleManager,openCcRecipientsContainer,closeCcRecipientsContainer,searchCCRecipients,resetFields">
         <div class="loader-overlay">
             <div class="loader">
                 <div></div>
@@ -28,7 +28,7 @@
                         <label for="leave_type">Leave Type <span class="requiredMark">*</span> </label> <br>
                         <div class="custom-select-wrapper mb-2" style="width: 65%;">
                             <select id="leave_type" class="form-control outline-none rounded placeholder-small" wire:click="selectLeave" wire:model.lazy="leave_type" name="leave_type" wire:change="handleFieldUpdate('leave_type')">
-                                <option value="default">Select Type</option>
+                                <option value="" disabled selected>Select Type</option>
                                 @if($showCasualLeaveProbation == true)
                                 <option value="Casual Leave Probation">Casual Leave Probation</option>
                                 @else
@@ -225,8 +225,8 @@
                 @if($showApplyingToContainer)
                 <div class="searchContainer">
                     <!-- Content for the search container -->
-                    <div class="m-0 p-0 d-flex align-items-center justify-content-between">
-                            <div class="searchleave p-0 m-0">
+                        <div class=" m-0 p-0 d-flex align-items-center justify-content-between">
+                            <div class="searchapplyingto p-0 m-0">
                                 <div class="input-group">
                                     <input
                                         wire:model="searchQuery"
@@ -247,7 +247,7 @@
                                 </div>
                             </div>
 
-                            <div class="searchleavebtn ms-2 m-0 p-0 d-flex justify-content-end">
+                            <div class="searchapplyingto-btn ms-2 m-0 p-0 d-flex justify-content-end">
                                 <button wire:click="applyingTo" type="button" class="close rounded px-1 py-0" aria-label="Close">
                                     <span aria-hidden="true" class="closeIcon"><i class="fas fa-times "></i>
                                     </span>
@@ -370,7 +370,7 @@
 
                 @if($showCcRecipents)
                 <div class="ccContainer" x-data="{ open: @entangle('showCcRecipents') }" x-cloak @click.away="open = false">
-                    <div class=" m-0 p-0 d-flex align-items-center justify-content-between">
+                    <div class="m-0 p-0 d-flex align-items-center justify-content-between">
                         <div class="cctosearch m-0 p-0">
                             <div class="input-group">
                                 <input wire:model.debounce.500ms="searchTerm" id="searchInput" type="text" class="form-control placeholder-small" placeholder="Search..." aria-label="Search" aria-describedby="basic-addon1" wire:keydown.enter.prevent="handleEnterKey">
@@ -382,7 +382,7 @@
                             </div>
                         </div>
 
-                        <div class="cctosearchbtn ms-2 m-0 p-0 d-flex justify-content-end">
+                        <div class="cctobtn ms-2 m-0 p-0 d-flex justify-content-end">
                             <button wire:click="closeCcRecipientsContainer" type="button" class="close rounded px-1 py-0" aria-label="Close">
                                 <span aria-hidden="true" class="closeIcon"><i class="fas fa-times "></i></span>
                             </button>

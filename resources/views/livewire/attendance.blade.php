@@ -1564,7 +1564,7 @@ color: #fff;
                                                                <p class="text-2" style="margin-top:30px;">{{$averageWorkHoursForModalTitle}}</p>
                                                                         
 
-                                                     </section>
+                                    l                 </section>
                                             </td>
                                             <td class="insights-for-attendance-period-avg-working-hours">
 

@@ -342,7 +342,7 @@
         </div>
     </div>
   
-  <div class="table-container">
+  <div class="table-container table-responsive">
         <table style=" width: 50%;height:60%"> 
               <thead style="height:40%;background-color:white">
                     <tr>
@@ -408,7 +408,7 @@
         <tbody class="regularisationEntries">
                 
                 
-                <td>10:00 am to 07:00 pm</td>
+                <td style="white-space:nowrap;">10:00 am to 07:00 pm</td>
                 <td>
                       
                        @if(empty($r1['from']))

@@ -144,13 +144,13 @@ class EmployeeSwipesData extends Component
         return str_replace('-', '', $id);
     });
 
-    // Fetch swipe logs for all managed employees in one query
-    // $externalSwipeLogs = DB::connection('sqlsrv')
-    //     ->table('DeviceLogs_' . now()->month . '_' . now()->year)
-    //     ->select('UserId', 'logDate', 'Direction')
-    //     ->whereIn('UserId', $normalizedIds)
-    //     ->whereDate('logDate', $today)
-    //     ->get();
+    
+    $externalSwipeLogs = DB::connection('sqlsrv')
+        ->table('DeviceLogs_' . now()->month . '_' . now()->year)
+        ->select('UserId', 'logDate', 'Direction')
+        ->whereIn('UserId', $normalizedIds)
+        ->whereDate('logDate', $today)
+        ->get();
 
     foreach ($managedEmployees as $employee) {
         $normalizedEmployeeId = str_replace('-', '', $employee->emp_id);

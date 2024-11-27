@@ -4,6 +4,7 @@
 namespace App\Livewire;
 
 use App\Helpers\FlashMessageHelper;
+use App\Mail\RegularisationApplyingMail;
 use App\Models\EmployeeDetails;
 use App\Models\HolidayCalendar;
 use App\Models\LeaveRequest;
@@ -14,6 +15,7 @@ use App\Models\SwipeRecord;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class Regularisation extends Component
@@ -110,8 +112,10 @@ class Regularisation extends Component
 
     public $monthinFormat;
 
+    public $employeeEmail;
     public $todayMonth;
 
+    public $employeeId;
     public $todayYear;
 
     public $todayDay;
@@ -124,6 +128,8 @@ class Regularisation extends Component
             $this->todayYear=now()->year;
             $this->todayMonth=now()->month;
             $this->todayDay = now()->day;
+            $this->employeeId = auth()->guard('emp')->user()->emp_id;
+            $this->employeeEmail=EmployeeDetails::where('emp_id',$this->employeeId)->first();
             $this->getDaysInMonth($this->year, $this->month);
             $this->monthinFormat = now()->format('F');
             $this->holidays = HolidayCalendar::where('month', $this->monthinFormat)
@@ -681,7 +687,7 @@ public function nextMonth()
     public function storearraydates()
 {
     try {
-      
+       
         $validatedData = $this->validate([
             'shift_times.*.from' => 'required|date_format:H:i',
             'shift_times.*.to' => 'required|date_format:H:i|after:shift_times.*.from',
@@ -704,7 +710,7 @@ public function nextMonth()
         } else {
             $regularisationEntriesArray = json_decode($regularisationEntriesJson, true);
         }
-
+    
         // Count the number of items
         $this->numberOfItems = count($regularisationEntriesArray);
 
@@ -714,10 +720,19 @@ public function nextMonth()
             'regularisation_entries' => $regularisationEntriesJson,
             'is_withdraw' => 0,
             'status'=>5,
-            'regularisation_date' => '2024-03-26',
+            'regularisation_date' => null,
         ]);
         FlashMessageHelper::flashSuccess('Hurry Up! Regularisation Created  successfully');
         sleep(1);
+        $details = [
+           
+            'regularisationRequests'=>$regularisationEntriesArray,
+            'employee_id'=>$this->employeeId,
+           
+        ];
+        Mail::to($this->employeeEmail)->send(new RegularisationApplyingMail($details));
+
+ 
         $this->remarks='';
         $regularisationEntriesJson = [];
         $this->regularisationEntries = [];

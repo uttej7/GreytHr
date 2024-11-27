@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\EmployeeDetails;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
@@ -14,17 +15,18 @@ use Illuminate\Support\Facades\Log;
 |
 */
 
-// Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-//     return (int) $user->id === (int) $id;
-// });
-
-// Broadcast::channel('users.{id}', function ($user, $id) {
-//     return (int) $user->id === (int) $id;
-// });
-
-Broadcast::channel('App.Models.EmployeeDetails.{emp_id}', function ($user, $emp_id) {
-    $emp = Auth::guard('emp')->user();
-    Log::info('Broadcast channel authorization called', ['emp_id' => $emp_id, 'emp' => $emp]);
-    return (int) $emp->id === (int) $emp_id;
+Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+    return (int) $user->id === (int) $id;
 });
 
+Broadcast::channel('App.Models.EmployeeDetails.{emp_id}', function ($user, $emp_id) {
+    Log::info('Broadcast channel authorization called', ['emp_id' => $emp_id]);
+    return (int) $user->emp_id === (int) $emp_id;
+});
+
+Broadcast::channel('chat.{receiver}', function (EmployeeDetails $user, $receiver) {
+
+    #check if user is same as receiver
+
+    return (int) $user->emp_id === (int) $receiver;
+});

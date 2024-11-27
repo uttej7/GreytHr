@@ -27,6 +27,8 @@ use Livewire\WithFileUploads;
 use App\Helpers\FlashMessageHelper;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\HelpDeskNotification;
+use App\Mail\IncidentRequestMail;
+use App\Mail\ServiceRequestMail;
 use App\Models\IncidentRequest;
 use App\Models\IT;
 use App\Models\ServiceRequest;
@@ -37,9 +39,10 @@ class Catalog extends Component
     use WithFileUploads;
     public $searchTerm = '';
     public $superAdmins;
+    public $email;
     public $ServiceRequestaceessDialog = false;
 
-
+    public $recipient;
     public $mobile;
     public $showModal = true;
     public $selectedDeptId;
@@ -100,6 +103,8 @@ class Catalog extends Component
     public $IdRequestaceessDialog = false;
     public $MmsRequestaceessDialog = false;
     public $LapRequestaceessDialog = false;
+    public    $InternetRequestaceessDialog = false;
+      
     public $AddRequestaceessDialog = false;
     public $incidentRequestaceessDialog = false;
     public $justification;
@@ -202,6 +207,7 @@ class Catalog extends Component
         $this->IdRequestaceessDialog = false;
         $this->MmsRequestaceessDialog = false;
         $this->DesktopRequestaceessDialog = false;
+        $this->NewMailRequestaceessDialog=false;
 
         $this->selectedPeople = [];
         $this->addselectedPeople = [];
@@ -220,156 +226,7 @@ class Catalog extends Component
         $this->reset(['category', 'cc_to', 'priority']);
         $this->category = 'Request For IT';
     }
-    public function ServiceRequest()
-    {
-        $this->resetDialogs();
-        $this->resetDialogs();
-        $this->ServiceRequestaceessDialog = true;
-        $this->showModal = true;
-    }
 
-    public function incidentRequest()
-    {
-        $this->resetDialogs();
-        $this->resetIncidentFields();
-        $this->incidentRequestaceessDialog = true;
-        $this->showModal = true;
-    }
-
-    public function createIncidentRequest()
-    {
-        $this->validate([
-            'short_description' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:Low,Medium,High',
-            'file_path' => 'nullable|file|max:10240',  // Validate that file is an actual file and its size is within limit (e.g., 10MB)
-        ]);
-
-        // Get the logged-in employee ID
-        $employeeId = auth()->guard('emp')->user()->emp_id;
-        Log::debug('Create Incident Request called by employee ID: ' . $employeeId);
-
-        // Handle file upload if there is a file
-        $filePath = null;
-        $fileName = null;
-        $mimeType = null;
-
-        if ($this->file_path) {
-            Log::debug('File uploaded, storing the file...');
-
-            // Store the file in the public disk under 'incident_files'
-            try {
-                $filePath = $this->file_path->store('incident_files', 'public');  // Store the file correctly
-                $fileName = $this->file_path->getClientOriginalName();  // Get the original file name
-                $mimeType = $this->file_path->getMimeType();  // Get the file's mime type
-
-                Log::debug('File stored successfully at path: ' . $filePath);
-            } catch (\Exception $e) {
-                Log::error('Error uploading file: ' . $e->getMessage());
-                FlashMessageHelper::flashError('Error uploading file.');
-                return;
-            }
-        } else {
-            Log::debug('No file uploaded.');
-        }
-
-        // Create the new IncidentRequest
-        try {
-            $incidentRequest = IncidentRequest::create([
-                'emp_id' => $employeeId,
-                'short_description' => $this->short_description,
-                'description' => $this->description,
-                'priority' => $this->priority,
-                'assigned_dept' => 'IT',
-                'file_path' => $filePath,
-                'file_name' => $fileName,
-                'mime_type' => $mimeType,
-                'status_code' => 10, // Set default status
-            ]);
-
-            Log::debug('Incident Request created successfully: ', $incidentRequest->toArray());
-        } catch (\Exception $e) {
-            Log::error('Error creating Incident Request: ' . $e->getMessage());
-            FlashMessageHelper::flashError('Error creating Incident Request.');
-            return;
-        }
-
-        // Reset the fields and close the modal
-        $this->resetIncidentFields();
-        $this->showModal = false;
-
-        // Flash success message
-        FlashMessageHelper::flashSuccess('Incident request created successfully.');
-        Log::info('Incident request created and modal closed for employee ID: ' . $employeeId);
-    }
-
-    public function createServiceRequest()
-    {
-        $this->validate([
-            'short_description' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:Low,Medium,High',
-            'file_path' => 'nullable|file|max:10240',
-        ]);
-
-        // Get the logged-in employee ID
-        $employeeId = auth()->guard('emp')->user()->emp_id;
-
-        // Handle file upload if there is a file
-        $filePath = null;
-        $fileName = null;
-        $mimeType = null;
-
-        if ($this->file_path) {
-
-            // Store the file in the public disk under 'incident_files'
-            try {
-                $filePath = $this->file_path->store('incident_files', 'public');  // Store the file correctly
-                $fileName = $this->file_path->getClientOriginalName();  // Get the original file name
-                $mimeType = $this->file_path->getMimeType();  // Get the file's mime type
-
-            } catch (\Exception $e) {
-                FlashMessageHelper::flashError('Error uploading file.');
-                return;
-            }
-        }
-
-        // Create the new IncidentRequest
-        try {
-            $incidentRequest = ServiceRequest::create([
-                'emp_id' => $employeeId,
-                'short_description' => $this->short_description,
-                'description' => $this->description,
-                'priority' => $this->priority,
-                'assigned_dept' => 'IT',
-                'file_path' => $filePath,
-                'file_name' => $fileName,
-                'mime_type' => $mimeType,
-                'status_code' => 10, // Set default status
-            ]);
-        } catch (\Exception $e) {
-            FlashMessageHelper::flashError('Error creating Incident Request.');
-            return;
-        }
-
-        // Reset the fields and close the modal
-        $this->resetIncidentFields();
-        $this->showModal = false;
-        if ($incidentRequest) {
-            FlashMessageHelper::flashSuccess('Service request created successfully.');
-        }
-    }
-    public function resetIncidentFields()
-    {
-        $this->incidentRequestaceessDialog = false;
-        $this->ServiceRequestaceessDialog =false;
-        $this->resetDialogs();
-        $this->short_description = null;
-        $this->priority = null;
-        $this->description = null;
-        $this->resetErrorBag();
-        $this->resetValidation();
-    }
 
     public function AddRequest()
     {
@@ -450,6 +307,14 @@ class Catalog extends Component
         $this->reset(['category', 'priority']);
         $this->category = 'New Mailbox Request';
     }
+    public function IntenetRequest()
+    {
+        $this->resetDialogs();
+        $this->InternetRequestaceessDialog = true;
+        $this->showModal = true;
+        $this->reset(['category', 'priority']);
+        $this->category = 'Internet Access Request';
+    }
     public function openItRequestaccess()
     {
         $this->ItRequestaceessDialog = true; // Open the Sec 80C modal
@@ -488,7 +353,11 @@ class Catalog extends Component
     {
         $this->DistributionRequestaceessDialog = true;
     }
-
+    public function closeInternetRequestaccess()
+    {
+        $this->reset(['subject', 'mail', 'mobile', 'description', 'selected_equipment', 'cc_to', 'category', 'file_path', 'selectedPeople', 'selectedPeopleNames']);
+        $this->InternetRequestaceessDialog = false;
+    }
     public function closeItRequestaccess()
     {
 
@@ -816,18 +685,23 @@ class Catalog extends Component
                 'priority' => $this->priority,
                 'mail' => 'N/A',
                 'mobile' => 'N/A',
+                'status_code' => 8,
             ]);
+            $helpDesk->refresh();
+            
+            // Notify super admins
             $superAdmins = IT::where('role', 'super_admin')->get();
-
+            
             foreach ($superAdmins as $admin) {
-                // Retrieve the first and last names
-                $firstName = $admin->first_name;
-                $lastName = $admin->last_name;
-
-                // Send Email with first and last names included
-                Mail::to($admin->email)->send(new HelpDeskNotification($helpDesk, $firstName, $lastName));
+                $employeeDetails = EmployeeDetails::where('emp_id', $admin->emp_id)->first();
+            
+                $firstName = $employeeDetails->first_name ?? 'N/A';
+                $lastName = $employeeDetails->last_name ?? 'N/A';
+            
+                Mail::to($admin->email)->send(
+                    new HelpDeskNotification($helpDesk, $firstName, $lastName)
+                );
             }
-
 
             FlashMessageHelper::flashSuccess('Request created successfully.');
             $this->reset();
@@ -882,8 +756,8 @@ class Catalog extends Component
                 ->firstOrFail();
 
             // Directly fetch email and assign mobile as emergencyContact
-            $this->email = $employeeDetails->email ?? '-';
-            $this->emergencyContact = $employeeDetails->emergency_contact ?? '-'; // Using mobile as emergencyContact
+            $this->mail = $employeeDetails->email ?? '-';
+            $this->mobile = $employeeDetails->emergency_contact ?? '-'; // Using mobile as emergencyContact
 
             // Process file upload
             $fileContent = null;
@@ -907,11 +781,11 @@ class Catalog extends Component
                 $fileName = $this->file_path->getClientOriginalName();
             }
 
-            // Create the help desk entry
             $helpDesk = HelpDesks::create([
                 'emp_id' => $employeeId, // Pass the employee ID directly
                 'distributor_name' => $this->distributor_name ?? '-',
                 'subject' => $this->subject,
+               
                 'description' => $this->description,
                 'file_path' => $fileContent,
                 'file_name' => $fileName,
@@ -920,16 +794,28 @@ class Catalog extends Component
                 'cc_to' => $this->cc_to ?? '-',
                 'category' => $this->category,
                 'mail' => $this->mail, // Directly fetched email
-                'mobile' => $this->mobile, // Using mobile as emergencyContact
+                'mobile' => $this->mobile, 
+                'status_code' => 8,
             ]);
-
+            
+            // Ensure `request_id` is fetched
+            $helpDesk->refresh();
+            
             // Notify super admins
             $superAdmins = IT::where('role', 'super_admin')->get();
+            
             foreach ($superAdmins as $admin) {
+                $employeeDetails = EmployeeDetails::where('emp_id', $admin->emp_id)->first();
+            
+                $firstName = $employeeDetails->first_name ?? 'N/A';
+                $lastName = $employeeDetails->last_name ?? 'N/A';
+            
                 Mail::to($admin->email)->send(
-                    new HelpDeskNotification($helpDesk, $admin->first_name, $admin->last_name)
+                    new HelpDeskNotification($helpDesk, $firstName, $lastName)
                 );
             }
+            
+            
 
             FlashMessageHelper::flashSuccess('Request created successfully.');
             $this->reset();
@@ -967,42 +853,42 @@ class Catalog extends Component
                 'description' => 'required|string',
                 'file_path' => 'nullable|file|mimes:xls,csv,xlsx,pdf,jpeg,png,jpg,gif|max:40960', // Adjust max size as needed
 
-            ], $messages);
-
-            // Store the file as binary data
-            $fileContent = null;
-            $mimeType = null;
-            $fileName = null;
-            if ($this->file_path) {
-
-
-                $fileContent = file_get_contents($this->file_path->getRealPath());
-                if ($fileContent === false) {
-                    Log::error('Failed to read the uploaded file.', [
-                        'file_path' => $this->file_path->getRealPath(),
-                    ]);
-                    FlashMessageHelper::flashError('Failed to read the uploaded file.');
-                    return;
-                }
-
-                // Check if the file content is too large
-                if (strlen($fileContent) > 16777215) { // 16MB for MEDIUMBLOB
-                    FlashMessageHelper::flashWarning('File size exceeds the allowed limit.');
-                    return;
-                }
-
-
-                $mimeType = $this->file_path->getMimeType();
-                $fileName = $this->file_path->getClientOriginalName();
-            }
-
-            $employeeId = auth()->guard('emp')->user()->emp_id;
-
-            $this->employeeDetails = EmployeeDetails::where('emp_id', $employeeId)->first();
-
-
-
-            HelpDesks::create([
+            ],$messages);
+         
+    // Store the file as binary data
+    $fileContent=null;
+    $mimeType = null;
+    $fileName = null;
+    if ($this->file_path) {
+   
+   
+        $fileContent = file_get_contents($this->file_path->getRealPath());
+        if ($fileContent === false) {
+            Log::error('Failed to read the uploaded file.', [
+                'file_path' => $this->file_path->getRealPath(),
+            ]);
+            FlashMessageHelper::flashError( 'Failed to read the uploaded file.');
+            return;
+        }
+ 
+        // Check if the file content is too large
+        if (strlen($fileContent) > 16777215) { // 16MB for MEDIUMBLOB
+            FlashMessageHelper::flashWarning('File size exceeds the allowed limit.');
+            return;
+        }
+ 
+ 
+        $mimeType = $this->file_path->getMimeType();
+        $fileName = $this->file_path->getClientOriginalName();
+    }
+   
+        $employeeId = auth()->guard('emp')->user()->emp_id;
+       
+        $this->employeeDetails = EmployeeDetails::where('emp_id', $employeeId)->first();
+       
+       
+     
+    $helpDesk=HelpDesks::create([
                 'emp_id' => $this->employeeDetails->emp_id,
 
                 'subject' => $this->subject,
@@ -1016,17 +902,26 @@ class Catalog extends Component
                 'mail' => $this->mail ?? '-',
                 'distributor_name' => $this->distributor_name ?? '-',
                 'priority' => $this->priority,
+                'status_code' => 8,
 
 
             ]);
 
+            $helpDesk->refresh();
+            
+            // Notify super admins
             $superAdmins = IT::where('role', 'super_admin')->get();
+            
             foreach ($superAdmins as $admin) {
+                $employeeDetails = EmployeeDetails::where('emp_id', $admin->emp_id)->first();
+            
+                $firstName = $employeeDetails->first_name ?? 'N/A';
+                $lastName = $employeeDetails->last_name ?? 'N/A';
+            
                 Mail::to($admin->email)->send(
-                    new HelpDeskNotification($helpDesk, $admin->first_name, $admin->last_name)
+                    new HelpDeskNotification($helpDesk, $firstName, $lastName)
                 );
             }
-
             FlashMessageHelper::flashSuccess('Request created successfully.');
             $this->reset();
             return redirect()->to('/HelpDesk');
@@ -1108,6 +1003,7 @@ class Catalog extends Component
                 'mobile' => 'N/A',
                 'priority' => $this->priority,
                 'distributor_name' => 'N/A',
+                'status_code' => 8,
             ]);
 
             $superAdmins = IT::where('role', 'super_admin')->get();

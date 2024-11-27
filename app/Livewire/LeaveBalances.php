@@ -221,7 +221,6 @@ class LeaveBalances extends Component
     {
         try {
             $employeeId = auth()->guard('emp')->user()->emp_id;
-
             if ($this->casualLeavePerYear > 0) {
                 $this->percentageCasual = ($this->consumedCasualLeaves / $this->casualLeavePerYear) * 100;
             }
@@ -434,7 +433,7 @@ class LeaveBalances extends Component
         // Fetch employee details
         $employeeDetails = EmployeeDetails::where('emp_id', $employeeId)->first();
 
-        // Query to fetch leave transactions based on selected criteria
+        // Query to fetch leave transactions based on selected criterial
         $leaveRequests = LeaveRequest::where('emp_id', $employeeId)
             ->when($this->fromDateModal, function ($query) {
                 $query->where('from_date', '>=', $this->fromDateModal);

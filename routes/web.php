@@ -99,6 +99,7 @@ use App\Livewire\EmpPostrequest;
 use App\Livewire\EmpTimeSheet;
 use App\Livewire\GrantLeaveBalance;
 use App\Livewire\ImageUpload;
+use App\Livewire\IncidentRequests;
 use App\Livewire\ItDashboardPage;
 use App\Livewire\LeaveBalancesChart;
 use App\Livewire\OrganisationChart;
@@ -292,6 +293,7 @@ Route::middleware(['auth:emp', 'handleSession'])->group(function () {
     Route::get('/HelpDesk', HelpDesk::class)->name('helpdesk');
 
     Route::get('/catalog', Catalog::class)->name('catalog');
+    Route::get('/incident', IncidentRequests::class)->name('incident');
 
     // Related salary module and ITdeclaration Document center
     Route::get('/payslip', Payroll::class);

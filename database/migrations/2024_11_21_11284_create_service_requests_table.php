@@ -16,6 +16,7 @@ return new class extends Migration
             $table->smallInteger('id')->autoIncrement(); // Incident Request ID
             $table->string('service_id', 10)->nullable()->unique(); // Auto-generated Service ID
             $table->string('emp_id',10);
+            $table->string('category');
             $table->string('short_description')->nullable();
             $table->text('description')->nullable();
             $table->enum('priority', ['low', 'medium', 'high'])->default('low');

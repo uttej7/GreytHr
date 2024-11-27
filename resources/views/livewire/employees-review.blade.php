@@ -154,18 +154,26 @@
             </div>
             @else
 
-            <div class="row p-0 mt-3 d-flex justify-content-end">
-                <div class="row m-0 p-0 mt-3">
-                    <div class="search-container d-flex align-items-end justify-content-end p-1">
-                        <input type="text" wire:model.debounce.500ms="searchQuery" id="searchInput" placeholder="Enter employee name" class="border outline-none rounded">
-                        <button wire:click="searchApprovedLeave" id="searchButtonReports">
-                            <i class="fas fa-search" style="width:7px;height:7px;"></i>
-                        </button>
-                    </div>
-                </div>
+            <div class="row p-0 mt-3">
+    <div class="row m-0 p-0 mt-3 w-100">
+        <div 
+            class="search-container d-flex align-items-end ms-auto p-2" 
+            style="position: relative; width: 220px;">
+            <input 
+                type="text" 
+                wire:model.debounce.500ms="searchQuery" 
+                id="searchInput" 
+                placeholder="Search..." 
+                class="form-control placeholder-small border outline-none rounded" 
+                style="padding-right: 40px;"
+            >
+            <button wire:click="searchApprovedLeave" id="searchButtonReports">
+                <i class="fas fa-search" style="width: 16px; height: 16px;"></i>
+            </button>
+        </div>
+    </div>
+</div>
 
-
-            </div>
 
 
             @if(count($approvedRegularisationRequestList))
@@ -253,14 +261,17 @@
                                 @endif
                             </div>
 
-                            <div class="arrow-btn">
-                                <i class="fa fa-angle-down"></i>
+                            <div class="arrow-btn"wire:click="toggleActiveAccordion({{ $arrl->id }})" style="color:{{ in_array($arrl->id, $openAccordionsForClosed) ? '#3a9efd' : '#778899' }};
+                                border:1px solid {{ in_array($arrl->id, $openAccordionsForClosed) ? '#3a9efd' : '#778899' }};">
+                                <i class="fa fa-angle-{{ in_array($arrl->id, $openAccordionsForClosed) ? 'up' : 'down' }}"
+                                style="color:{{ in_array($arrl->id, $openAccordionsForClosed) ? '#3a9efd' : '#778899' }}"></i>
                             </div>
 
                         </div>
 
                     </div>
-                    <div class="accordion-body m-0 p-0">
+                    @if(in_array($arrl->id, $openAccordionsForClosed))
+                    <div class=" m-0 p-0">
 
                         <div style="width:100%; height:1px; border-bottom:1px solid #ccc; margin-bottom:10px;"></div>
 
@@ -301,12 +312,13 @@
                             </div>
 
                             <div class="content px-4">
-                                <a href="{{ route('review-closed-regularation', ['id' => $arrl->id]) }}" style="color:#007BFF;font-size:11px;">View Details</a>
+                                <a href="{{ route('review-closed-regularation', ['id' => $arrl->id]) }}" class="anchorTagDetails">View Details</a>
 
                             </div>
 
                         </div>
                     </div>
+                    @endif
                 </div>
 
                 @endforeach

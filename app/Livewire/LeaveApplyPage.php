@@ -512,25 +512,6 @@ class LeaveApplyPage extends Component
             // Clear any previous error messages
             $this->errorMessageValidation = null;
 
-            // Check if both from_date and to_date are empty or null
-            if ((empty($this->from_date) || $this->from_date === null || $this->from_date === '') &&
-                (empty($this->to_date) || $this->to_date === null || $this->to_date === '')
-            ) {
-                $this->errorMessageValidation = FlashMessageHelper::flashError('Both date fields are required.');
-                return false;
-            }
-
-            // If from_date is empty or null but to_date is set, throw error for from_date
-            if ((empty($this->from_date) || $this->from_date === null || $this->from_date === '')) {
-                $this->errorMessageValidation = FlashMessageHelper::flashError('From date is required.');
-                return false;
-            }
-
-            // If to_date is empty or null but from_date is set, throw error for to_date
-            if ((empty($this->to_date) || $this->to_date === null || $this->to_date === '')) {
-                $this->errorMessageValidation = FlashMessageHelper::flashError('To date is required.');
-                return false;
-            }
 
             // Additional validation if necessary (e.g., compare dates, etc.)
             $employeeId = auth()->guard('emp')->user()->emp_id;
@@ -544,7 +525,7 @@ class LeaveApplyPage extends Component
                 $this->errorMessageValidation = FlashMessageHelper::flashError('Invalid date format.');
                 return false; // Stop further processing
             }
-            // Check for insufficient leave balance
+            // Check for insufficient leave balancev
             if ($this->leave_type) {
                 $leaveBalance = $this->getLeaveBalance($employeeId);
                 if ($leaveBalance <= 0 && $this->checkLeaveBalance($this->calculatedNumberOfDays, $this->leaveBalances, $this->leave_type)) {
@@ -561,7 +542,7 @@ class LeaveApplyPage extends Component
             // 1. Check if the selected dates are on weekends
             if (!$this->isWeekday($this->from_date) || !$this->isWeekday($this->to_date)) {
                 $this->errorMessageValidation = FlashMessageHelper::flashError('Looks like it\'s already your non-working day. Please pick different date(s) to apply.');
-                return false;
+                return false; 
             }
 
             // 3. Validate leave balance
@@ -571,14 +552,14 @@ class LeaveApplyPage extends Component
                 if ($totalNumberOfDays > $leaveBalance) {
                     Log::debug('Total number of leave days exceed balance', ['totalNumberOfDays' => $totalNumberOfDays, 'leaveBalance' => $leaveBalance]);
                     $this->errorMessageValidation = FlashMessageHelper::flashError('It looks like you have already used all your leave balance.');
-                    return false;
+                    return false; 
                 }
             }
 
             // 4. Check for holidays
             if ($this->checkForHolidays()) {
                 $this->errorMessageValidation = FlashMessageHelper::flashError('The selected leave dates overlap with existing holidays. Please pick different dates.');
-                return false;
+                return false; 
             }
 
             // 5. Validate from date for joining date
@@ -643,6 +624,7 @@ class LeaveApplyPage extends Component
             return false;
         }
     }
+
 
     //checkfilesize
     protected function checkFileSize()

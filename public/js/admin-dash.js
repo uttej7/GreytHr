@@ -151,7 +151,8 @@ if (toggleSidebar) {
     toggleSidebar.addEventListener("click", toggleSidebarHandler);
 
     // Check if the screen is a mobile size and trigger the sidebar toggle
-    if (window.innerWidth <= 768) { // Adjust the width as needed for mobile screens
+    if (window.innerWidth <= 768) {
+        // Adjust the width as needed for mobile screens
         toggleSidebarHandler();
     }
 
@@ -159,12 +160,14 @@ if (toggleSidebar) {
     window.addEventListener("resize", function () {
         if (window.innerWidth <= 768 && !sidebar.classList.contains("hide")) {
             toggleSidebarHandler();
-        } else if (window.innerWidth > 768 && sidebar.classList.contains("hide")) {
+        } else if (
+            window.innerWidth > 768 &&
+            sidebar.classList.contains("hide")
+        ) {
             toggleSidebarHandler();
         }
     });
 }
-
 
 if (sidebar) {
     sidebar.addEventListener("mouseleave", function () {
@@ -299,12 +302,12 @@ var options = {
 // chart.render();
 
 // chat screen js
-$("#contacts .item").click(function(){
+$("#contacts .item").click(function () {
     $(this).parents("#contacts").addClass("hidden");
     $("#content-chart").addClass("active");
 });
 
-$("#back").click(function(e){
+$("#back").click(function (e) {
     e.preventDefault();
     $("#contacts").removeClass("hidden");
     $("#content-chart").removeClass("active");
@@ -312,34 +315,37 @@ $("#back").click(function(e){
 
 function openMsgDiv() {
     $("#chatScreen").show();
-    $('.bio-div').hide();
+    $(".bio-div").hide();
     $("#chatScreen input.form-control").focus();
 }
 
 // // Hide chat screen when close button is clicked
-$("#closeChat").click(function(e){
+$("#closeChat").click(function (e) {
     e.preventDefault();
     $("#chatScreen").hide();
-    $('.bio-div').show();
+    $(".bio-div").show();
 });
 
-// function openSetting() {
-//     $("#settings").show();
-//     $('#contacts').hide();
-//     $('#content-chart').hide();
-//     $('#people-link').removeClass('active');
-//     $('#settings-link').addClass('active');
-// }
+function openSetting() {
+    $("#settings").show();
+    $("#contacts").hide();
+    $("#content-chart").hide();
+    $("#people-link").removeClass("active");
+    $("#settings-link").addClass("active");
+}
 function openPeopleList() {
     $("#settings").hide();
-    $('#contacts').show();
-    $('#content-chart').show();
-    $('#settings-link').removeClass('active');
-    $('#people-link').addClass('active');
+    $("#contacts").show();
+    $("#content-chart").show();
+    $("#settings-link").removeClass("active");
+    $("#people-link").addClass("active");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    if (window.location.pathname === "/chat" || window.location.pathname === "/users") {
+    if (
+        window.location.pathname === "/chat" ||
+        window.location.pathname === "/chat/"
+    ) {
         document.body.id = "userPage";
     }
 });

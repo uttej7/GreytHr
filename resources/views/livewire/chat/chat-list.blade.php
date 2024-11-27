@@ -20,31 +20,42 @@
 
         <div class="list-users">
             <!-- Display Filtered Conversations -->
-            @forelse ($conversations as $employee)
-                <div class="item @if ($employee->isOnline()) active @endif">
+            @forelse ($conversations as $conversation)
+                @php
+                    $otherUser =
+                        $conversation->sender_id === auth()->user()->emp_id
+                            ? $conversation->receiver
+                            : $conversation->sender;
+                    $lastMessage = $conversation->messages()->latest()->first();
+                @endphp
+                <div class="item @if ($otherUser->isOnline()) active @endif">
                     <div class="avatar-chart">
-                        <img src="{{ $employee->image
-                            ? 'data:image/jpeg;base64,' . $employee->image
-                            : ($employee->gender === 'MALE'
+                        <img src="{{ $otherUser->image
+                            ? 'data:image/jpeg;base64,' . $otherUser->image
+                            : ($otherUser->gender === 'MALE'
                                 ? asset('images/male-default.png')
                                 : asset('images/female-default.jpg')) }}"
                             alt="Avatar">
-                        <span class="dot @if ($employee->isOnline()) -online @else -offline @endif"></span>
+                        <span class="dot @if ($otherUser->isOnline()) -online @else -offline @endif"></span>
                     </div>
-                    <div class="text-content" wire:key='{{ $employee->id }}'
-                        wire:click="$dispatch('chatUserSelected', { senderId: '{{ auth()->user()->emp_id }}', receiverId: '{{ $employee->emp_id }}' })">
-                        <div class="name">{{ $employee->first_name }} {{ $employee->last_name }}</div>
-                        <div class="pos">{{ $employee->job_role }}</div>
+                    <div class="text-content" wire:key='{{ $otherUser->emp_id }}'
+                        wire:click="$dispatch('chatUserSelected', { senderId: '{{ auth()->user()->emp_id }}', receiverId: '{{ $otherUser->emp_id }}' })">
+                        <div class="name">{{ $otherUser->first_name }} {{ $otherUser->last_name }}</div>
+                        <div class="last-message">
+                            {{ $lastMessage ? $lastMessage->body : 'No messages yet.' }}
+                        </div>
                     </div>
 
                     <div class="actions">
-                        <button class="btn"
-                            wire:click="$dispatch('chatUserSelected', { senderId: '{{ auth()->user()->emp_id }}', receiverId: '{{ $employee->emp_id }}' })">
+                        <button class="btn" wire:key='{{ $otherUser->emp_id }}'
+                            wire:click="$dispatch('chatUserSelected', { senderId: '{{ auth()->user()->emp_id }}', receiverId: '{{ $otherUser->emp_id }}' })">
                             <span class="material-icons position-relative">
                                 question_answer
-                                <span
-                                    class="msgCount badge rounded-pill text-bg-danger">{{ $employee->unreadMessagesCount }}</span>
-                            </span>
+                                @if ($conversation->unreadMessagesCount(auth()->user()->emp_id) > 0)
+                                    <span class="msgCount badge rounded-pill text-bg-danger">
+                                        {{ $conversation->unreadMessagesCount(auth()->user()->emp_id) }}
+                                    </span>
+                                @endif
                         </button>
                     </div>
                 </div>

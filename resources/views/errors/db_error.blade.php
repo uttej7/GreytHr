@@ -28,7 +28,7 @@
             <h6 class="mb-3">Connection to the database was lost. Please try again later or contact support.</h6>
             <div class="text-center">
                 <form action="{{ route('home') }}" method="GET">
-                    <button type="submit" class="cancel-btn">Go to Homepage</button>
+                    <button type="submit" class="approve-btn">Go to Homepage</button>
                 </form>
             </div>
         </div>

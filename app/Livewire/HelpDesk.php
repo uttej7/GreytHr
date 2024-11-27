@@ -127,6 +127,8 @@ public $closedSearch = '';
             ->orderBy('created_at', 'desc')
             ->get();
          
+         
+         
      
         $this->peoples = EmployeeDetails::whereJsonContains('company_id', $companyId)->whereNotIn('employee_status', ['rejected', 'terminated'])
             ->orderBy('first_name')
@@ -177,7 +179,7 @@ public $closedSearch = '';
     }
     
   
-    public function searchHelpDesk($status, $searchTerm,$selectedCategory)
+    public function searchHelpDesk($status_code, $searchTerm,$selectedCategory)
     {
         $employeeId = auth()->guard('emp')->user()->emp_id;
     
@@ -185,10 +187,10 @@ public $closedSearch = '';
         $query = HelpDesks::where(function ($query) use ($employeeId) {
             $query->where('emp_id', $employeeId)->orWhere('cc_to', 'like', "%$employeeId%");
         });
-        if (is_array($status)) {
-            $query->whereIn('status', $status);  // Multiple statuses (array)
+        if (is_array($status_code)) {
+            $query->whereIn('status_code', $status_code);  // Multiple statuses (array)
         } else {
-            $query->where('status', $status);    // Single status (string)
+            $query->where('status_code', $status_code);    // Single status (string)
         }// Apply status filter dynamically
     
         // If a category is selected, apply category filtering
@@ -220,17 +222,17 @@ public $closedSearch = '';
     
     public function searchActiveHelpDesk()
     {
-        $this->searchHelpDesk(['Open', 'Recent'], $this->activeSearch,$this->activeCategory);
+        $this->searchHelpDesk([8,10], $this->activeSearch,$this->activeCategory);
     }
     
     public function searchPendingHelpDesk()
     {
-        $this->searchHelpDesk('Pending', $this->pendingSearch,$this->pendingCategory);
+        $this->searchHelpDesk(6, $this->pendingSearch,$this->pendingCategory);
     }
     
     public function searchClosedHelpDesk()
     {
-        $this->searchHelpDesk(['completed', 'Reject'], $this->closedSearch,$this->closedCategory);
+        $this->searchHelpDesk([12,4], $this->closedSearch,$this->closedCategory);
     }
     
     public function showRejectionReason($id)
@@ -486,6 +488,7 @@ public $closedSearch = '';
                 'mail' => 'N/A',
                 'mobile' => 'N/A',
                 'distributor_name' => 'N/A',
+               
            
             ]);
             

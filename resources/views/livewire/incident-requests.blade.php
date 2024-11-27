@@ -51,129 +51,177 @@
 
 
         </div>
-        <div class="d-flex flex-row justify-content-end mt-2 mb-2">
-
-
-
-
-            <div class="mx-2 ">
-                <button wire:click="Catalog" class="helpdesk-btn"> IT Request </button>
-
-            </div>
-
-
-            <div class="mx-2 ">
-                <button wire:click="open" class="helpdesk-btn"> HR Request </button>
-            </div>
-
-            <div>
-
+        <div class="row m-0">
+    
+        <div class="col-md-12 mb-2" >
+            <div class="newReq" style="align-items:end">
+                <button class="submit-btn" wire:click="ServiceRequest">
+                    Service Request
+                </button>
+                <button class="submit-btn" wire:click="incidentRequest">
+                    Incident Request
+                </button>
             </div>
         </div>
-
-        @if($showDialog)
-        <div class="modal" tabindex="-1" role="dialog" style="display: block;overflow-y:auto;">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+        <!-- modals for service requst -->
+        @if($ServiceRequestaceessDialog)
+        <div class="modal" tabindex="-1" role="dialog" style="{{ $showModal ? 'display: block;' : 'display: none;' }}">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
                 <div class="modal-content">
-                    <div class="modal-header helpdesk-modal align-items-center">
-                        <h5 class="modal-title helpdesk-title"><b>HR Request</b></h5>
-
-                        </button>
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Create Service Request</h1>
                     </div>
                     <div class="modal-body">
 
+                        <form wire:submit.prevent="createServiceRequest" style="width:80%">
 
-                        <label for="category" class="helpdesk-label">Category <span style="color:red">*</span></label>
-                        <div class="input" type="" class="form-control placeholder-small">
-                            <div style="position: relative;">
-                                <select wire:model.lazy="category" wire:keydown.debounce.500ms="validateField('category')" id="category" style="font-size: 12px;" class="form-control placeholder-small">
-                                    <option style="color: #778899; " value="" hidden>Select Category</option>
-                                    <optgroup label="HR">
+                            <div class="form-group  mt-2">
+                                <label for="Name">Requested By:</label>
 
-                                        <option value="Employee Information">Employee Information</option>
-                                        <option value="Hardware Maintenance">Hardware Maintenance</option>
-                                        <option value="Incident Report">Incident Report</option>
-                                        <option value="Privilege Access Request">Privilege Access Request</option>
-                                        <option value="Security Access Request">Security Access Request</option>
-                                        <option value="Technical Support">Technical Support</option>
-                                        <!-- Add more HR-related options as needed -->
-                                    </optgroup>
-                                </select>
-                                @error('category') <span class="text-danger">{{ $message }}</span> @enderror
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-caret-down" viewBox="0 0 16 16" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); pointer-events: none;align-items :center">
-                                    <path d="M3.204 5h9.592L8 10.481 3.204 5z" />
-                                </svg>
+
+                                <div class="input-group mb-3">
 
 
 
-
-                            </div>
-                        </div>
-
-                        <div class="form-group mt-2">
-                            <label for="subject" class="helpdesk-label">Subject <span style="color: red;">*</span></label>
-                            <input type="text" wire:model.lazy="subject" wire:keydown.debounce.500ms="validateField('subject')" id="subject" class="form-control placeholder-small" placeholder="Enter subject" style="font-family: Montserrat, sans-serif;">
-                            @error('subject') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="form-group mt-2">
-                            <label for="description" class="helpdesk-label">Description <span style="color: red;">*</span></label>
-                            <textarea id="description" wire:model.lazy="description" wire:keydown.debounce.500ms="validateField('description')" id="description" class="form-control" placeholder="Enter description" rows="4" style="font-family: Montserrat, sans-serif;"></textarea>
-
-                            @error('description') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="row mt-2">
-                            <div class="col">
-                                <label for="fileInput" class="helpdesk-label">
-                                    <i class="fa fa-paperclip"></i> Attach Image
-                                </label>
-                            </div>
-                            @error('file_path') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div>
-                            <input type="file" wire:model="file_path" class="form-control">
-
-                        </div>
-
-
-
-                        <div class="form-group mt-2">
-                            <label for="priority" class="helpdesk-label">Priority<span style="color:red">*</span></label>
-                            <div class="input" class="form-control placeholder-small">
-                                <div style="position: relative;">
-                                <select name="priority" id="priority" wire:keydown.debounce.500ms="validateField('priority')" wire:model.lazy="priority" style="font-size: 12px; " class="form-control placeholder-small">
-                                                                    <option style="color: grey;" value="" hidden>Select Priority</option>
-                                                                    <option value="Low">Low</option>
-                                                                    <option value="Medium">Medium</option>
-                                                                    <option value="High">High</option>
-                                                                   
-                                                                  
-                                                                </select>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-caret-down" viewBox="0 0 16 16" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); pointer-events: none;align-items :center">
-                                        <path d="M3.204 5h9.592L8 10.481 3.204 5z" />
-                                    </svg>
+                                    <span class="input-group-text" id="basic-addon2"><i class="fa fa-info-circle" style="color:blue"></i></span> <!-- Change label as needed -->
+                                    @if($employeeDetails)
+                                    <input wire:model.lazy="full_name" type="text" class="form-control" aria-describedby="basic-addon1" readonly>
+                                    @else
+                                    <p>No employee details found.</p>
+                                    @endif
                                 </div>
+
                             </div>
-                            @error('priority') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
 
 
+                            <!-- Short Description -->
+                            <div class="form-group mt-2">
+                                <label for="short_description">Short Description <span style="color:red">*</span></label>
+                                <input wire:model.lazy="short_description" type="text" class="form-control" id="short_description">
+                                @error('short_description') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
 
+                            <!-- Priority -->
+                            <div class="form-group mt-2">
+                                <label for="priority">Urgency <span style="color:red">*</span></label>
+                                <select wire:model.lazy="priority" class="form-control" id="priority">
+                                    <option value="" hidden>Select Priority</option>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                                @error('priority') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
 
-                        <div class="ml-0 p-0 mt-3 d-flex gap-3 justify-content-center">
-                            <button wire:click="submitHR" class="submit-btn" type="button">Submit</button>
-                            <button wire:click="close" class="cancel-btn" type="button" style="border: 1px solid rgb(2, 17, 79);">Cancel</button>
+                            <!-- Description -->
+                            <div class="form-group mt-2">
+                                <label for="description">Please describe your issue below <span style="color:red">*</span></label>
+                                <textarea wire:model.lazy="description" class="form-control" id="description"></textarea>
+                                @error('description') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- File Upload -->
+                            <div class="form-group mt-2">
+                                <label for="file_path" style="color:#778899; font-weight:500; font-size:12px;">
+                                    <i class="fa fa-paperclip"></i> Attach File
+                                </label>
+                                <input type="file" wire:model="file_path" id="file_path" class="form-control">
+                                @error('file_path') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <div class="m-0 p-0 mt-3 d-flex gap-3 justify-content-center">
+                            <button type="button" wire:click="createServiceRequest" class="submit-btn">Submit</button>
+                            <button wire:click="cancelServiceRequest" type="button" class="cancel-btn" style="border:1px solid rgb(2,17,79);">Cancel</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="modal-backdrop fade show blurred-backdrop"></div>
+        <div class="modal-backdrop fade show blurred-backdrop" style="{{ $showModal ? '' : 'display: none;' }}"></div>
         @endif
+        <!-- modals for incident requst -->
+        @if($incidentRequestaceessDialog)
+        <div class="modal" tabindex="-1" role="dialog" style="{{ $showModal ? 'display: block;' : 'display: none;' }}">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Create Incident Request</h1>
+                    </div>
+                    <div class="modal-body">
+
+                        <form wire:submit.prevent="createIncidentRequest" style="width:80%">
+
+                            <div class="form-group  mt-2">
+                                <label for="Name">Requested By:</label>
+
+
+                                <div class="input-group mb-3">
+
+
+
+                                    <span class="input-group-text" id="basic-addon2"><i class="fa fa-info-circle" style="color:blue"></i></span> <!-- Change label as needed -->
+                                    @if($employeeDetails)
+                                    <input wire:model.lazy="full_name" type="text" class="form-control" aria-describedby="basic-addon1" readonly>
+                                    @else
+                                    <p>No employee details found.</p>
+                                    @endif
+                                </div>
+
+                            </div>
+
+
+                            <!-- Short Description -->
+                            <div class="form-group mt-2">
+                                <label for="short_description">Short Description <span style="color:red">*</span></label>
+                                <input wire:model.lazy="short_description" type="text" class="form-control" id="short_description">
+                                @error('short_description') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Priority -->
+                            <div class="form-group mt-2">
+                                <label for="priority">Urgency <span style="color:red">*</span></label>
+                                <select wire:model.lazy="priority" class="form-control" id="priority">
+                                    <option value="" hidden>Select Priority</option>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                                @error('priority') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Description -->
+                            <div class="form-group mt-2">
+                                <label for="description">Please describe your issue below <span style="color:red">*</span></label>
+                                <textarea wire:model.lazy="description" class="form-control" id="description"></textarea>
+                                @error('description') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- File Upload -->
+                            <div class="form-group mt-2">
+                                <label for="file_path" style="color:#778899; font-weight:500; font-size:12px;">
+                                    <i class="fa fa-paperclip"></i> Attach File
+                                </label>
+                                <input type="file" wire:model="file_path" id="file_path" class="form-control">
+                                @error('file_path') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <div class="m-0 p-0 mt-3 d-flex gap-3 justify-content-center">
+                            <button type="button" wire:click="createIncidentRequest" class="submit-btn">Submit</button>
+                            <button wire:click="cancelIncidentRequest" type="button" class="cancel-btn" style="border:1px solid rgb(2,17,79);">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show blurred-backdrop" style="{{ $showModal ? '' : 'display: none;' }}"></div>
+        @endif
+    </div>
 
 
         @if ($activeTab == "active")
@@ -191,13 +239,12 @@
                 </div>
             </div>
             <div class="col-12 col-md-3 " style="margin-top:-5px">
-                <select wire:model="activeCategory" wire:change="searchActiveHelpDesk" id="activeCategory" class="form-select" style="height:33px; font-size:0.8rem;">
-                    <option value="" class="option-default">Select Request</option>
-                    @foreach($requestCategories as $request => $categories)
-                    <option value="{{ $request }}" class="option-item">{{ $request }}</option>
+            <select wire:model="activeCategory" wire:change="searchActiveHelpDesk" id="activeCategory" class="form-select" style="height:33px; font-size:0.8rem;">
+    <option value="" class="option-default">Select Request</option>
+    <option value="Service Request" class="option-item">Service Request</option>
+    <option value="Incident Request" class="option-item">Incident Request</option>
+</select>
 
-                    @endforeach
-                </select>
             </div>
         </div>
 
@@ -211,7 +258,8 @@
             <th class="help-desk-table-column">Request Raised By</th>
             <th class="help-desk-table-column">Request ID</th>
             <th class="help-desk-table-column">Category</th>
-            <th class="help-desk-table-column">Subject</th>
+            <th class="help-desk-table-column">Short Description</th>
+       
             <th class="help-desk-table-column">Description</th>
             <th class="help-desk-table-column">Attach Files</th>
             <th class="help-desk-table-column">Priority</th>
@@ -233,14 +281,15 @@
                 <strong style="font-size: 10px;">({{ $record->emp_id }})</strong>
             </td>
             <td class="helpdesk-request">
-                {{ $record->request_id ?? '-' }}
+                {{ $record->snow_id ?? '-' }}
             </td>
             <td class="helpdesk-request">
                 {{ $record->category ?? '-' }}
             </td>
             <td class="helpdesk-request">
-                {{ $record->subject ?? '-' }}
+                {{ $record->short_description ?? '-' }}
             </td>
+          
             <td class="helpdesk-request">
                 {{ $record->description ?? '-' }}
             </td>
@@ -287,13 +336,14 @@
     @elseif ($record->status_code == 8)
         <span style="color: orange;">{{ $record->status->status_name ?? '-' }}</span>
     @else
-        {{$record->status->status->status_name ?? '-' }}
+        {{$record->status->status_name->status_name ?? '-' }}
     @endif
 </td>
 
         </tr>
      
         @endforeach
+    
    
         @endif
     </tbody>
@@ -332,12 +382,11 @@
             </div>
 
             <div class="col-12 col-md-3" style="margin-top:-5px">
-                <select wire:model="closedCategory" wire:change="searchClosedHelpDesk" id="closedCategory" class="form-select" style="height:33px; font-size:0.8rem;">
-                    <option value="">Select Request</option>
-                    @foreach($requestCategories as $request => $categories)
-                    <option value="{{ $request }}">{{ $request }}</option>
-                    @endforeach
-                </select>
+            <select wire:model="closedCategory" wire:change="searchClosedHelpDesk" id="closedCategory" class="form-select" style="height:33px; font-size:0.8rem;">
+    <option value="" class="option-default">Select Request</option>
+    <option value="Service Request" class="option-item">Service Request</option>
+    <option value="Incident Request" class="option-item">Incident Request</option>
+</select>
             </div>
         </div>
         <div class="help-desk-table">
@@ -347,8 +396,8 @@
                     <tr class="help-desk-table-row">
                         <th class="help-desk-table-column">Request Raised By</th>
                         <th class="help-desk-table-column">Request ID</th>
-                        <th class="help-desk-table-column">Category</th>
-                        <th class="help-desk-table-column">Subject</th>
+                        <th class="help-desk-table-column">Short Description</th>
+                      
                         <th class="help-desk-table-column">Description</th>
                         <th class="help-desk-table-column">Attach Files</th>
                         <th class="help-desk-table-column">Priority</th>
@@ -356,7 +405,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($searchData && $searchData->whereIn('status_code', [12,4])->isEmpty())
+                    @if($searchData && $searchData->whereIn('status_code', [11,3])->isEmpty())
                     <tr class="search-data">
                         <td colspan="7" style="text-align: center; border:none;">
                             <img style="width: 10em; margin: 20px;"
@@ -366,21 +415,19 @@
                     </tr>
                     @else
                     @foreach ($searchData->sortByDesc('created_at') as $index => $record)
-                    @if($record->status_code == 12 || $record->status_code == 4)
+                    @if($record->status_code == 11 || $record->status_code == 3)
                     <tr style="background-color: white;">
                         <td class="helpdesk-request">
                             {{ ucfirst(strtolower($record->emp->first_name)) }} {{ ucfirst(strtolower($record->emp->last_name)) }} <br>
                             <strong style="font-size: 10px;">({{ $record->emp_id }})</strong>
                         </td>
                         <td class="helpdesk-request">
-                            {{ $record->request_id ?? '-' }}
+                            {{ $record->snow_id ?? '-' }}
                         </td>
                         <td class="helpdesk-request">
-                            {{ $record->category ?? '-' }}
+                            {{ $record->short_description ?? '-' }}
                         </td>
-                        <td class="helpdesk-request">
-                            {{ $record->subject ?? '-' }}
-                        </td>
+                    
                         <td class="helpdesk-request">
                             {{ $record->description ?? '-' }}
                         </td>
@@ -418,9 +465,9 @@
                         <td class="helpdesk-request">
                             {{ $record->priority ?? '-' }}
                         </td>
-                        <td class="helpdesk-request @if($record->status_code == 4) rejectColor @elseif($record->status_code == 12) approvedColor @endif">
-    @if($record->status_code == 4)
-        {{ ucfirst($record->status->status_name  ?? '-') }}<br>
+                        <td class="helpdesk-request @if($record->status_code == 3) rejectColor @elseif($record->status_code == 11) approvedColor @endif">
+    @if($record->status_code == 3)
+        {{ ucfirst($record->status->status_name ?? '-') }}<br>
         @if($record->rejection_reason)
             <!-- If rejection_reason is not null, show the View Reason link -->
             <a href="#" wire:click.prevent="showRejectionReason('{{ $record->id }}')" class="anchorTagDetails">
@@ -430,8 +477,8 @@
             <!-- If rejection_reason is null, show "No Reason" -->
            <p class="helpdesk-request">No Reason</p> 
         @endif
-    @elseif($record->status_code == 12)
-        {{ ucfirst($record->status->status_name ?? '-') }}
+    @elseif($record->status_code == 11)
+        {{ ucfirst($record->status->status_name?? '-') }}
     @endif
 </td>
 
@@ -467,6 +514,7 @@
 
         @endif
         @endforeach
+     
         @endif
         </tbody>
         </table>
@@ -492,69 +540,63 @@
             </div>
         </div>
         <div class="col-12 col-md-3" style="margin-top:-2px">
-            <select wire:model="pendingCategory" wire:change="searchPendingHelpDesk" id="pendingCategory" class="form-select" style="height:33px; font-size:0.8rem;">
-                <option value="">Select Request</option>
-                @foreach($requestCategories as $request => $categories)
-                <option value="{{ $request }}">{{ $request }}</option>
-                @endforeach
-            </select>
+        <select wire:model="pendingCategory" wire:change="searchPendingHelpDesk" id="pendingCategory" class="form-select" style="height:33px; font-size:0.8rem;">
+    <option value="" class="option-default">Select Request</option>
+    <option value="Service Request" class="option-item">Service Request</option>
+    <option value="Incident Request" class="option-item">Incident Request</option>
+</select>
         </div>
     </div>
     <div class="help-desk-table">
         <table class="help-desk-table-main">
-            <thead>
-                <tr class="help-desk-table-row">
-                    <th class="help-desk-table-column">Request Raised By</th>
-                    <th class="help-desk-table-column">Request ID</th>
-                    <th class="help-desk-table-column">Category</th>
-                    <th class="help-desk-table-column">Subject</th>
-                    <th class="help-desk-table-column">Description</th>
-                    <th class="help-desk-table-column">Attach Files</th>
-                    <th class="help-desk-table-column">Priority</th>
-                    <th class="help-desk-table-column">Status</th>
-                </tr>
-            </thead>
+        <thead>
+                    <tr class="help-desk-table-row">
+                        <th class="help-desk-table-column">Request Raised By</th>
+                        <th class="help-desk-table-column">Request ID</th>
+                        <th class="help-desk-table-column">Short Description</th>
+                      
+                        <th class="help-desk-table-column">Description</th>
+                        <th class="help-desk-table-column">Attach Files</th>
+                        <th class="help-desk-table-column">Priority</th>
+                        <th class="help-desk-table-column">Status</th> <!-- Added Status Column -->
+                    </tr>
+                </thead>
             <tbody>
-                @if($searchData->where('status_code', 6)->isEmpty())
+                @if($searchData->where('status_code', 5)->isEmpty())
                 <tr class="search-data">
                     <td colspan="7" style="text-align: center; border:none">
                         <img style="width: 10em; margin: 20px;" src="https://media.istockphoto.com/id/1357284048/vector/no-item-found-vector-flat-icon-design-illustration-web-and-mobile-application-symbol-on.jpg?s=612x612&w=0&k=20&c=j0V0ww6uBl1LwQLH0U9L7Zn81xMTZCpXPjH5qJo5QyQ=" alt="No items found">
                     </td>
                 </tr>
                 @else
-                @foreach ($searchData->sortByDesc('created_at') as $index => $record)
+                @foreach ($searchData->whereIn('status_code', 5)->sortByDesc('created_at') as $index => $record)
                 <tr style="background-color: white;">
-                    <td class="helpdesk-request">
-                        {{ ucfirst(strtolower($record->emp->first_name)) }} {{ ucfirst(strtolower($record->emp->last_name)) }} <br>
-                        <strong style="font-size: 10px;">({{ $record->emp_id }})</strong>
-                    </td>
-                    <td class="helpdesk-request">
-                        {{ $record->request_id ?? '-' }}
-                    </td>
-                    <td class="helpdesk-request">
-                        {{ $record->category ?? '-' }}
-                    </td>
-                    <td class="helpdesk-request">
-                        {{ $record->subject ?? '-' }}
-                    </td>
-                    <td class="helpdesk-request">
-                        {{ $record->description ?? '-' }}
-                    </td>
-                    <td class="helpdesk-request">
-                        @if ($record->file_path)
-                        @if(strpos($record->mime_type, 'image') !== false)
-                        <a href="#" class="anchorTagDetails" wire:click.prevent="showImage('{{ $record->getImageUrlAttribute() }}')">
-                            View Image
-                        </a>
-                        @else
-                        <a class="anchorTagDetails" href="{{ route('file.show', $record->id) }}" download="{{ $record->file_name }}" style="margin-top: 10px;">
-                            Download file
-                        </a>
-                        @endif
-                        @else
-                        <p style="color: gray;">-</p>
-                        @endif
-                        @if ($showImageDialog)
+                        <td class="helpdesk-request">
+                            {{ ucfirst(strtolower($record->emp->first_name)) }} {{ ucfirst(strtolower($record->emp->last_name)) }} <br>
+                            <strong style="font-size: 10px;">({{ $record->emp_id }})</strong>
+                        </td>
+                        <td class="helpdesk-request">
+                            {{ $record->snow_id ?? '-' }}
+                        </td>
+                        <td class="helpdesk-request">
+                            {{ $record->short_description ?? '-' }}
+                        </td>
+                    
+                        <td class="helpdesk-request">
+                            {{ $record->description ?? '-' }}
+                        </td>
+                        <td class="helpdesk-request">
+                            @if ($record->file_path)
+                            @if(strpos($record->mime_type, 'image') !== false)
+                            <a href="#" class="anchorTagDetails" wire:click.prevent="showImage('{{ $record->getImageUrlAttribute() }}')">View Image</a>
+                            @else
+                            <a class="anchorTagDetails" href="{{ route('file.show', $record->id) }}" download="{{ $record->file_name }}" style="margin-top: 10px;">Download file</a>
+                            @endif
+                            @else
+                            <p style="color: gray;">-</p>
+                            @endif
+
+                            @if ($showImageDialog)
                             <div class="modal fade show d-block" tabindex="-1" role="dialog">
                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                     <div class="modal-content">
@@ -573,24 +615,29 @@
                             </div>
                             <div class="modal-backdrop fade show"></div>
                             @endif
-                    </td>
-                    <td class="helpdesk-request">
-                        {{ $record->priority ?? '-' }}
-                    </td>
-                    <td class="helpdesk-request">
-                        @if ($record->status_code == 6)
+                        </td>
+                        <td class="helpdesk-request">
+                            {{ $record->priority ?? '-' }}
+                        </td>
+                        <td class="helpdesk-request">
+                        @if ($record->status_code == 5)
                         <span style="color: orange;">{{ $record->status->status_name ??'-' }}</span>
-                        @elseif ($record->status_code == 12)
-                        <span style="color: green;">{{$record->status->status_name  }}</span>
-                        @elseif ($record->status_code == 4)
-                        <span style="color: red;">{{ $record->status->status_name  }}</span>
-                        @else
-                        <span>{{ $record->status->status_name  ?? '-' }}</span>
+
                         @endif
                     </td>
-                </tr>
+
+<!-- Modal for Rejection Reason -->
+
+
+
+
+
+
+        </tr>
+
 
                 @endforeach
+                
                 @endif
             </tbody>
         </table>

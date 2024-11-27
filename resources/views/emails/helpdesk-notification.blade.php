@@ -25,23 +25,25 @@
 <body>
     <div class="content">
     
-            <p>Hi Admin<strong>   
+            <p>Hi  <strong>   
     
- </strong>,
+ </strong>,{{ ucwords(strtolower($firstName ))}} {{ ucwords(strtolower($lastName ))}}
 </p>
-            <p>A New Request Created</strong>. You can follow up on their progress.</p>
+
+            <p>You got a new request <strong> {{ $RequestId }} </strong> from  <b> {{ $createdbyFirstName }} {{ $createdbyLastName }}</b> ({{ $employeeId }})</p>
  
         
         <p>Below are the New Request details:</p>
+        <b style="text-decoration:underline">{{ $helpDesk->category }}</b>
         
         <ul>
 
           
-            <li><strong>Employee ID:</strong> {{ $helpDesk->emp_id }}</li>
-     
-            <li><strong>Subject:</strong> {{ $helpDesk->subject }}</li>
-            <li><strong>Description:</strong> {{ $helpDesk->description }}</li>
-            <li><strong>Category:</strong> {{ $helpDesk->category }}</li>
+        <strong>Employee ID:</strong> {{ $helpDesk->emp_id }}<br>
+<strong>Subject:</strong> {{ $helpDesk->subject }}<br>
+<strong>Description:</strong> {{ $helpDesk->description }}<br>
+<strong>Priority:</strong> {{ $helpDesk->priority }}<br>
+
         </ul>
 
      
@@ -49,7 +51,7 @@
            
     
     </div>
-
+<p>Thank You</p>
     <div class="footer">
         <p>Note: This is an auto-generated email. Please do not reply.</p>
         <p>PS: "This e-mail is generated from info@s6.payg-india.com"</p>

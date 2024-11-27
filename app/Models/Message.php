@@ -19,21 +19,6 @@ class Message extends Model
         'type',
         'media_path'
     ];
-    /**
-     * Sender of the message.
-     */
-    public function sender()
-    {
-        return $this->belongsTo(EmployeeDetails::class, 'sender_id');
-    }
-
-    /**
-     * Receiver of the message.
-     */
-    public function receiver()
-    {
-        return $this->belongsTo(EmployeeDetails::class, 'receiver_id');
-    }
 
     /**
      * The conversation this message belongs to.

@@ -54,24 +54,24 @@ class ViewPendingDetails extends Component
             // Base query for fetching leave applications
             $query = LeaveRequest::where(function ($query) {
                 $query->where('leave_applications.leave_status', 5)
-                      ->orWhere('leave_applications.cancel_status', 7);
+                    ->orWhere('leave_applications.cancel_status', 7);
             })
-            ->join('employee_details', 'leave_applications.emp_id', '=', 'employee_details.emp_id')
-            ->join('status_types', 'status_types.status_code', '=', 'leave_applications.leave_status')
-            ->where('leave_applications.created_at', '>=', $threeWorkingDaysAgo)
-            ->OrderBy('leave_applications.created_at','desc');
+                ->join('employee_details', 'leave_applications.emp_id', '=', 'employee_details.emp_id')
+                ->join('status_types', 'status_types.status_code', '=', 'leave_applications.leave_status')
+                ->where('leave_applications.created_at', '>=', $threeWorkingDaysAgo)
+                ->OrderBy('leave_applications.created_at', 'desc');
 
-        // Search query conditions
-        if ($filter !== null) {
-            $query->where(function ($query) use ($filter) {
-                $query->where('employee_details.first_name', 'like', '%' . $filter . '%')
-                      ->orWhere('employee_details.last_name', 'like', '%' . $filter . '%')
-                      ->orWheree('leave_applications.category_type', 'like', '%' . $filter . '%')
-                      ->orWhere('leave_applications.emp_id', 'like', '%' . $filter . '%')
-                      ->orWhere('leave_applications.leave_type', 'like', '%' . $filter . '%')
-                      ->orWhere('status_types.status_name', 'like', '%' . $filter . '%');
-            });
-        }
+            // Search query conditions
+            if ($filter !== null) {
+                $query->where(function ($query) use ($filter) {
+                    $query->where('employee_details.first_name', 'like', '%' . $filter . '%')
+                        ->orWhere('employee_details.last_name', 'like', '%' . $filter . '%')
+                        ->orWheree('leave_applications.category_type', 'like', '%' . $filter . '%')
+                        ->orWhere('leave_applications.emp_id', 'like', '%' . $filter . '%')
+                        ->orWhere('leave_applications.leave_type', 'like', '%' . $filter . '%')
+                        ->orWhere('status_types.status_name', 'like', '%' . $filter . '%');
+                });
+            }
 
             // Applying conditions for employee's role in the leave application
             $query->where(function ($query) use ($employeeId) {
@@ -128,11 +128,11 @@ class ViewPendingDetails extends Component
             $this->leaveApplications = $matchingLeaveApplications;
             $this->count = count($matchingLeaveApplications);
         } catch (\Illuminate\Database\QueryException $e) {
-           FlashMessageHelper::flashError('Error while getting the data. Please try again.');
+            FlashMessageHelper::flashError('Error while getting the data. Please try again.');
         } catch (PDOException $e) {
-           FlashMessageHelper::flashError('Connection error . Please try again.');
+            FlashMessageHelper::flashError('Connection error . Please try again.');
         } catch (\Exception $e) {
-           FlashMessageHelper::flashError('Connection error . Please try again.');
+            FlashMessageHelper::flashError('Connection error . Please try again.');
         }
     }
 
@@ -158,7 +158,7 @@ class ViewPendingDetails extends Component
             // Check if there are pending leave requests
             return $this->leaveRequests->where('leave_status', 5)->isNotEmpty();
         } catch (\Exception $e) {
-           FlashMessageHelper::flashError('Error while getting leave request. Please try again.');
+            FlashMessageHelper::flashError('Error while getting leave request. Please try again.');
         }
     }
 
@@ -261,6 +261,7 @@ class ViewPendingDetails extends Component
             $leaveRequest = $this->leaveApplications[$index]['leaveRequest'];
             // Get employee email
             $sendEmailToEmp = EmployeeDetails::where('emp_id', $leaveRequest->emp_id)->pluck('email')->first();
+
             $createdDate = Carbon::parse($leaveRequest->created_at);
             $daysSinceCreation = $createdDate->diffInDays(Carbon::now());
 
@@ -273,10 +274,10 @@ class ViewPendingDetails extends Component
                     $leaveRequest->action_by = $employeeId;
                     $leaveRequest->save();
                     Notification::create([
-                        'emp_id' =>  $employeeId ,
+                        'emp_id' =>  $employeeId,
                         'notification_type' => 'leaveApprove',
                         'leave_type' => $leaveRequest->leave_type,
-                        'assignee' =>$leaveRequest->emp_id,
+                        'assignee' => $leaveRequest->emp_id,
                     ]);
                     FlashMessageHelper::flashSuccess('Leave application approved successfully.');
                     // Sending email to employee and CC emails
@@ -289,6 +290,7 @@ class ViewPendingDetails extends Component
 
                     // Only send email if employee or CC emails are not empty
                     if (!empty($sendEmailToEmp) || !empty($ccEmails)) {
+
                         // Send email to the main recipient (the employee)
                         if (!empty($sendEmailToEmp)) {
                             Mail::to($sendEmailToEmp)
@@ -331,7 +333,6 @@ class ViewPendingDetails extends Component
             // Find the leave request by ID
             $leaveRequest = $this->leaveApplications[$index]['leaveRequest'];
             $sendEmailToEmp = EmployeeDetails::where('emp_id', $leaveRequest->emp_id)->pluck('email')->first();
-
             // Calculate the difference in days from the created date to now
             $createdDate = Carbon::parse($leaveRequest->created_at);
             $daysSinceCreation = $createdDate->diffInDays(Carbon::now());
@@ -378,9 +379,11 @@ class ViewPendingDetails extends Component
                     // Only send email if employee or CC emails are not empty
                     if (!empty($sendEmailToEmp) || !empty($ccEmails)) {
                         // Send email to the main recipient (the employee)
+                        dd($sendEmailToEmp);
                         if (!empty($sendEmailToEmp)) {
                             Mail::to($sendEmailToEmp)
                                 ->send(new LeaveApprovalNotification($leaveRequest, $applyingToDetails, $ccToDetails, true));
+                            FlashMessageHelper::flashSuccess('sent email sussceesfully');
                         }
 
                         // Send emails to CC recipients with different content
@@ -508,10 +511,10 @@ class ViewPendingDetails extends Component
             $leaveRequest->action_by = $employeeId;
             $leaveRequest->save();
             Notification::create([
-                'emp_id' =>  $employeeId ,
+                'emp_id' =>  $employeeId,
                 'notification_type' => 'leaveReject',
                 "leave_type" => $leaveRequest->leave_type,
-                'assignee' =>$leaveRequest->emp_id,
+                'assignee' => $leaveRequest->emp_id,
             ]);
             FlashMessageHelper::flashSuccess('Leave application rejected successfully.');
             // Sending email to employee and CC emails

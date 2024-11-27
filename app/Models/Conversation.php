@@ -38,4 +38,5 @@ class Conversation extends Model
             'emp_id'               // Related key on pivot table
         );
     }
+   
 }

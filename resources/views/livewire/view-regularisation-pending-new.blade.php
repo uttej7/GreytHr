@@ -165,7 +165,7 @@
                 </div>
 
                 <div class="content mb-2 px-4 d-flex gap-2">
-                    <a href="{{ route('review-pending-regularation', ['id' => $r->id, 'count' => $countofregularisations]) }}" style="color:rgb(2,17,79);font-size:12px;margin-top:3px;">View Details</a>
+                    <a href="{{ route('review-pending-regularation', ['id' => $r->id, 'count' => $countofregularisations]) }}" class="anchorTagDetails">View Details</a>
                     <button class="rejectBtn"wire:click="openRejectModal">Reject</button>
                     <button class="approveBtn"wire:click="openApproveModal">Approve</button>
                 </div>

@@ -407,12 +407,12 @@
         .hidden-pending-box {
 
             background-color: #fff;
-            margin-top: 230px;
+            margin-top: 200px;
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
             text-align: center;
-            margin-left: 550px;
+            margin-left: 500px;
             position: absolute;
             height: 320px;
             width: 900px;
@@ -1604,9 +1604,10 @@ if ($minDate === null || $date < $minDate) { $minDate=$date; } if ($maxDate===nu
     @endif
     @endforeach
     @else
-    <div class="history-box">
-        <img src="{{ asset('images/pending.png') }}" style="margin-top:80px;">
-        <p style="color: #a3b2c7;font-weight:400;font-size: 20px;margin-top:20px;">Hey, you have no
+    
+    <div class="hidden-pending-box">
+        <img src="{{ asset('images/pending.png') }}" style="margin-top:50px;" height="180" width="180">
+        <p style="color: #a3b2c7;font-weight:400;font-size: 14px;margin-top:20px;">Hey, you have no
             regularization records to view.</p>
     </div>
 

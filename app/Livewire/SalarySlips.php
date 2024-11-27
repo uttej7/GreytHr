@@ -5,24 +5,38 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Salaryslip;
 use App\Models\EmployeeDetails;
-use App\Models\SalaryRevision;
+use App\Models\EmpSalaryRevision;
 use App\Models\EmpBankDetail;
+use App\Models\EmpPersonalInfo;
+use App\Models\EmpSalary;
 use DateTime;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Dompdf\Dompdf;
+use Carbon\Carbon;
 
 class SalarySlips extends Component
 {
     public $employeeDetails;
+    public $employeePersonalDetails;
     public $salaryRevision;
+    public $empSalaryDetails;
     public $empBankDetails;
     public $showDetails = true;
-    public $selectedMonth;
-    public $netPay;
+    public $hideInfobutton = 'Hide';
+
+    public $selectedMonth, $salaryMonth;
+    public $netPay, $basic, $hra, $convayance, $medical, $special, $pf, $esi, $prof_tax, $gross, $salaryDivisions;
+
+    public function changeMonth()
+    {
+
+        $this->getSalaryDetails();
+    }
     public function toggleDetails()
     {
-        $this->showDetails = !$this->showDetails;
+        $this->showDetails = !$this->showDetails; // Toggle the value
     }
+
     private function calculateNetPay()
     {
         $totalGrossPay = 0;
@@ -37,30 +51,22 @@ class SalarySlips extends Component
     }
     public function downloadPdf()
     {
-       
-        $employeeId = auth()->guard('emp')->user()->emp_id;
-        $this->employeeDetails = EmployeeDetails::where('emp_id', $employeeId)->get();
-        $this->salaryRevision = SalaryRevision::where('emp_id', $employeeId)->get();
-        $this->empBankDetails = EmpBankDetail::where('emp_id', $employeeId)->get();
-    
-        $data = [
-            'employees' => $this->employeeDetails,
-            'salaryRevision' => $this->salaryRevision,
+
+
+
+        // Generate PDF using the fetched data
+        $pdf = Pdf::loadView('download-pdf', [
+            'employees' =>  $this->employeeDetails,
+            'salaryRevision' =>  $this->salaryDivisions,
             'empBankDetails' => $this->empBankDetails,
-            'netPay' => $this->calculateNetPay()
-        ];
-  
-             // Generate PDF using the fetched data
-             $pdf = Pdf::loadView('download-pdf', [
-              $data
-            ]);
-        return response()->streamDownload(function() use($pdf){
+            'rupeesInText' => $this->convertNumberToWords($this->salaryDivisions['net_pay']),
+            'salMonth' => Carbon::parse($this->selectedMonth)->format('F Y')
+        ]);
+
+        return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
         }, 'payslip.pdf');
-    
-       
     }
-    
 
 
 
@@ -68,12 +74,34 @@ class SalarySlips extends Component
     {
         // Array to represent numbers from 0 to 19 and the tens up to 90
         $words = [
-            0 => 'zero', 1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four', 5 => 'five',
-            6 => 'six', 7 => 'seven', 8 => 'eight', 9 => 'nine', 10 => 'ten',
-            11 => 'eleven', 12 => 'twelve', 13 => 'thirteen', 14 => 'fourteen', 15 => 'fifteen',
-            16 => 'sixteen', 17 => 'seventeen', 18 => 'eighteen', 19 => 'nineteen',
-            20 => 'twenty', 30 => 'thirty', 40 => 'forty', 50 => 'fifty',
-            60 => 'sixty', 70 => 'seventy', 80 => 'eighty', 90 => 'ninety'
+            0 => 'zero',
+            1 => 'one',
+            2 => 'two',
+            3 => 'three',
+            4 => 'four',
+            5 => 'five',
+            6 => 'six',
+            7 => 'seven',
+            8 => 'eight',
+            9 => 'nine',
+            10 => 'ten',
+            11 => 'eleven',
+            12 => 'twelve',
+            13 => 'thirteen',
+            14 => 'fourteen',
+            15 => 'fifteen',
+            16 => 'sixteen',
+            17 => 'seventeen',
+            18 => 'eighteen',
+            19 => 'nineteen',
+            20 => 'twenty',
+            30 => 'thirty',
+            40 => 'forty',
+            50 => 'fifty',
+            60 => 'sixty',
+            70 => 'seventy',
+            80 => 'eighty',
+            90 => 'ninety'
         ];
 
         // Handle special cases
@@ -133,54 +161,105 @@ class SalarySlips extends Component
         return 'number too large to convert';
     }
 
+    public function getSalaryDetails()
+    {
+        // dd('ok');
+
+        $employeeId = auth()->guard('emp')->user()->emp_id;
+
+
+        $this->employeeDetails = EmployeeDetails::select('employee_details.*', 'emp_departments.department')
+            ->leftJoin('emp_departments', 'employee_details.dept_id', '=', 'emp_departments.dept_id')
+            ->leftJoin('emp_personal_infos', 'employee_details.emp_id', '=', 'emp_personal_infos.emp_id')
+            ->where('employee_details.emp_id', $employeeId)
+            ->first();
+
+        $this->employeePersonalDetails=EmpPersonalInfo::where('emp_id',$employeeId)->first();
+
+
+        $this->salaryRevision = EmpSalaryRevision::where('emp_id', $employeeId)->get();
+        $this->empSalaryDetails = EmpSalary::join('salary_revisions', 'emp_salaries.sal_id', '=', 'salary_revisions.id')
+        ->where('salary_revisions.emp_id',$employeeId)
+            ->where('month_of_sal', 'like', $this->selectedMonth . '%')
+            ->first();
+        // dd($this->empSalaryDetails);
+
+        if ($this->empSalaryDetails) {
+            $this->salaryDivisions = $this->empSalaryDetails->calculateSalaryComponents($this->empSalaryDetails->salary);
+            $this->empBankDetails = EmpBankDetail::where('emp_id', $employeeId)
+                ->where('id', $this->empSalaryDetails->bank_id)->first();
+            // dd( $this->salaryDivisions);
+        } else {
+            // Handle the null case (e.g., log an error or set a default value)
+            $this->salaryDivisions = [];
+        }
+        //    dd( $this->salaryDivisions);
+        //    $this->basic=$this->empSalaryDetails->getBasicSalary( $this->empSalaryDetails->salary);
+        //    $this->hra=$this->empSalaryDetails->getBasicSalary( $this->empSalaryDetails->salary);
+        //    $this->convayance=$this->empSalaryDetails->getBasicSalary( $this->empSalaryDetails->salary);
+        //    $this->medical=$this->empSalaryDetails->getBasicSalary( $this->empSalaryDetails->salary);
+        //    $this->special=$this->empSalaryDetails->getBasicSalary( $this->empSalaryDetails->salary);
+        //    $this->pf=$this->empSalaryDetails->getBasicSalary( $this->empSalaryDetails->salary);
+        //    $this->esi=$this->empSalaryDetails->getBasicSalary( $this->empSalaryDetails->salary);
+        //    $this->prof_tax=$this->empSalaryDetails->getBasicSalary( $this->empSalaryDetails->salary);
+        //    $this->prof_tax=$this->empSalaryDetails->getBasicSalary( $this->empSalaryDetails->salary);
+
+
+
+
+        // $this->empBankDetails = EmpBankDetail::where('emp_id', $employeeId)->get();
+
+    }
+    public function mount()
+    {
+        $this->selectedMonth = now()->format('Y-m');
+
+        $this->getSalaryDetails();
+    }
+
     public function render()
     {
-    // Get the current year and month
-    $currentYear = date('Y');
-    $lastMonth = date('n')-1;
+        // Get the current year and month
+        $currentYear = date('Y');
 
-    // Generate options for months from January of the previous year to the current month of the current year
-    $options = [];
-    for ($year = $currentYear; $year >= $currentYear - 1; $year--) {
-        $startMonth = ($year == $currentYear) ? $lastMonth : 12; // Start from the current month or December
-        $endMonth = ($year == $currentYear - 1) ? 1 : 1; // End at January
 
-        for ($month = $startMonth; $month >= $endMonth; $month--) {
-            // Format the month and year to display
-            $dateObj = DateTime::createFromFormat('!m', $month);
-            $monthName = $dateObj->format('F');
-            $options["$year-$month"] = "$monthName $year";
+        $lastMonth = date('n');
+
+        // Generate options for months from January of the previous year to the current month of the current year
+        $options = [];
+        $options = [];
+        for ($year = $currentYear; $year >= $currentYear - 1; $year--) {
+            $startMonth = ($year == $currentYear) ? $lastMonth : 12; // Start from the current month or December
+            $endMonth = ($year == $currentYear - 1) ? 1 : 1; // End at January
+
+            for ($month = $startMonth; $month >= $endMonth; $month--) {
+                // Format the month to always have two digits
+                $monthPadded = sprintf('%02d', $month); // Adds leading zero to single-digit months
+                $dateObj = DateTime::createFromFormat('!m', $monthPadded);
+                $monthName = $dateObj->format('F');
+                $options["$year-$monthPadded"] = "$monthName $year";
+            }
         }
+
+        // Example
+
+        // dd( $this->empSalaryDetails);
+        // $salaryRevision = new EmpSalaryRevision();
+
+        // Calculate total allowance and deductions
+        // $totalGrossPay = 0;
+        // $totalDeductions = 0;
+
+        // dd( $totalGrossPay);
+        // $this->netPay = $totalGrossPay - $totalDeductions;
+
+
+        return view('livewire.salary-slips', [
+            'employees' => $this->employeeDetails,
+            'salaryRevision' => $this->salaryRevision,
+            'empBankDetails' => $this->empBankDetails,
+            'options' => $options,
+            'netPay' => $this->netPay
+        ]);
     }
-
-    $employeeId = auth()->guard('emp')->user()->emp_id;
-    $this->employeeDetails = EmployeeDetails::select('employee_details.*', 'emp_departments.department')
-    ->leftJoin('emp_departments', 'employee_details.dept_id', '=', 'emp_departments.dept_id')
-    ->where('employee_details.emp_id', $employeeId)
-    ->get();
-    $this->salaryRevision = SalaryRevision::where('emp_id', $employeeId)->get();
-    $salaryRevision = new SalaryRevision();
-
-    // Calculate total allowance and deductions
-    $totalGrossPay = 0;
-    $totalDeductions = 0;
-
-    foreach ($this->salaryRevision as $revision) {
-        $totalGrossPay += $revision->calculateTotalAllowance();
-        $totalDeductions += $revision->calculateTotalDeductions();
-    }
-
-    $this->netPay = $totalGrossPay - $totalDeductions;
-    $this->empBankDetails = EmpBankDetail::where('emp_id', $employeeId)->get();
-    $this->empBankDetails = EmpBankDetail::where('emp_id', $employeeId)->get();
-
-    return view('livewire.salary-slips', [
-        'employees' => $this->employeeDetails,
-        'salaryRevision' => $this->salaryRevision,
-        'empBankDetails' => $this->empBankDetails,
-        'options' => $options,
-        'netPay' => $this->netPay
-    ]);
-    }
-
 }

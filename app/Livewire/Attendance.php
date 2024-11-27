@@ -337,18 +337,31 @@ public function calculateAverageWorkHoursAndPercentage($startDate, $endDate)
     Log::info("Starting calculation for Employee ID: $employeeId");
 
     // Retrieve swipe records within the given date range
-    $records = SwipeRecord::where('emp_id', $employeeId)
+    
+    
+        $records = SwipeRecord::where('emp_id', $employeeId)
         ->whereDate('created_at', '>=', $startDate)
         ->whereDate('created_at', '<=', $endDate)
-        ->orderByDesc('created_at')
+        ->orderBy('created_at', 'asc') // Ensure records are ordered by date and time
         ->get();
+
+// Group by date and fetch the first IN and last OUT for each date
+        $dailyRecords = $records->groupBy(function ($record) {
+        return Carbon::parse($record->created_at)->toDateString();
+        })->map(function ($groupedRecords) {
+        $firstIn = $groupedRecords->firstWhere('in_or_out', 'IN');
+        $lastOut = $groupedRecords->where('in_or_out', 'OUT')->sortByDesc('created_at')->first();
+
+        return collect(['first_in' => $firstIn, 'last_out' => $lastOut])->filter(); // Remove nulls
+        });
+        // dd($dailyRecords);
     Log::info("Swipe records retrieved: " . json_encode($records));
 
     // Group swipes by date
-    $dailySwipes = $records->groupBy(function ($swipe) {
-        return Carbon::parse($swipe->created_at)->toDateString();
-    });
-    Log::info("Swipe records grouped by date: " . json_encode($dailySwipes->keys()));
+    // $dailySwipes = $records->groupBy(function ($swipe) {
+    //     return Carbon::parse($swipe->created_at)->toDateString();
+    // });
+    // Log::info("Swipe records grouped by date: " . json_encode($dailySwipes->keys()));
 
     // Get leave requests for the employee within the date range
     $leaveRequests = LeaveRequest::where('emp_id', $employeeId)
@@ -400,7 +413,7 @@ public function calculateAverageWorkHoursAndPercentage($startDate, $endDate)
     }
     Log::info("Total Working Days Count: $workingDaysCount");
 
-    foreach ($dailySwipes as $date => $swipesForDay) {
+    foreach ($dailyRecords as $date => $swipesForDay) {
         Log::info("Processing swipe data for date: $date");
         $inTime = null;
         $dayMinutes = 0;
@@ -1244,7 +1257,7 @@ public function calculateAverageWorkHoursAndPercentage($startDate, $endDate)
 
             $this->averageWorkHoursForModalTitle = $this->calculateAverageWorkHoursAndPercentage(Carbon::parse($this->start_date_for_insights), Carbon::parse($this->to_date));
 
-            // $timePattern = '/^\d{2}:\d{2}:\d{2}$/';    
+            // $timePattern = '/^\d{2}:\d{2}:\d{2}$/';
             // if (!empty($this->averageLastOutTime) && !empty($this->avergageFirstInTime) && 
             //         preg_match($timePattern, $this->averageLastOutTime) && preg_match($timePattern, $this->avergageFirstInTime)) {
 
@@ -1411,7 +1424,7 @@ public function calculateAverageWorkHoursAndPercentage($startDate, $endDate)
             $isHoliday = HolidayCalendar::whereDate('date', $tempStartDate)->exists();
             $isweekend = $startDate->isWeekend();
             $isOnLeave = $this->isEmployeeLeaveOnDate($tempStartDate, auth()->guard('emp')->user()->emp_id);
-            $isPresent = SwipeRecord::where('emp_id', auth()->guard('emp')->user()->emp_id)->where('in_or_out', 'OUT')->whereDate('created_at', $tempStartDate)->first();
+            $isPresent = SwipeRecord::where('emp_id', auth()->guard('emp')->user()->emp_id)->where('in_or_out', 'OUT')->whereDate('created_at', $tempStartDate)->orderByDesc('created_at')->first();
 
             if (empty($isPresent)) {
                 $isPresent = SwipeRecord::where('emp_id', auth()->guard('emp')->user()->emp_id)->where('in_or_out', 'IN')->whereDate('created_at', $tempStartDate)->first();

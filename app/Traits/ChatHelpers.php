@@ -146,19 +146,18 @@ trait ChatHelpers
      *
      * @return int
      */
-    public function getUnreadMessagesCountAttribute()
+    public function unreadMessagesCount($userId)
     {
-        // return $this->messages()
-        //     ->where('read', false)
-        //     ->where(function ($query) {
-        //         $query->where('sender_id', $this->emp_id)
-        //             ->orWhere('receiver_id', $this->emp_id);
-        //     })
-        //     ->count();
         return $this->messages()
-            ->where('read', false)
+            ->where(function ($query) use ($userId) {
+                $query->where('receiver_id', $userId) // Messages sent to the user
+                      ->orWhere('receiver_id', auth()->id()); // Include auth user as receiver
+            })
+            ->where('read', false) // Only unread messages
             ->count();
     }
+
+
 
 
     /**
@@ -171,13 +170,6 @@ trait ChatHelpers
         return $this->hasMany(Message::class, 'receiver_id', 'emp_id');
     }
 
-    // public function messages()
-    // {
-    //     return $this->hasMany(Message::class, 'sender_id')
-    //         ->orWhere(function ($query) {
-    //             $query->where('receiver_id', $this->emp_id);
-    //         });
-    // }
 
     /**
      * Define the 'members' relationship, assuming it's a many-to-many relationship.
@@ -187,5 +179,15 @@ trait ChatHelpers
     public function members()
     {
         return $this->belongsToMany(EmployeeDetails::class, 'group_conversations', 'conversation_id', 'emp_id');
+    }
+
+    public function sender()
+    {
+        return $this->belongsTo(EmployeeDetails::class, 'sender_id', 'emp_id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(EmployeeDetails::class, 'receiver_id', 'emp_id');
     }
 }

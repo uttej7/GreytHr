@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Helpers\FlashMessageHelper;
+use App\Mail\RegularisationApprovalMail;
+use App\Mail\RegularisationCombinedMail;
 use App\Mail\RegularisationRejectionMail;
 use App\Models\EmployeeDetails;
 use App\Models\RegularisationDates;
@@ -19,6 +21,7 @@ class ReviewPendingRegularisation extends Component
     public $regularisationdescription;
     public $regularisationrequest;
 
+    public $employeeEmailForApproval;
     public $regularisationEntries;
     public $ManagerId;
     public $ManagerName;
@@ -206,7 +209,8 @@ class ReviewPendingRegularisation extends Component
                     ]);
                 }
             }
-    
+            $this->sendmailForRegularisation($this->regularisationrequest);
+            
             // Optionally, add a confirmation message
             FlashMessageHelper::flashSuccess('Regularisation status submitted successfully.');
             Log::info('Regularisation submission complete. Redirecting to review page.');
@@ -216,6 +220,24 @@ class ReviewPendingRegularisation extends Component
             Log::error('Regularisation request not found.');
             FlashMessageHelper::flashError('Regularisation request not found.');
         }
+    }
+    public function sendmailForRegularisation($r1)
+    {
+       
+        $employee = EmployeeDetails::where('emp_id', $this->regularisationrequest->emp_id)->first();
+        $this->employeeEmailForApproval=$employee->email;
+        $employee_remarks=$r1->employee_remarks;
+        $regularisationEntriesforCombined = json_decode($r1->regularisation_entries, true);
+
+        $details = [
+            'employee_remarks'=>$employee_remarks,
+            'regularisationRequests'=>$regularisationEntriesforCombined,
+            'sender_id'=>$employee->emp_id,
+          
+           
+           
+        ];
+        Mail::to($this->employeeEmailForApproval)->send(new RegularisationCombinedMail($details));
     }
     public function render()
     {

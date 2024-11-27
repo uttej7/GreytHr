@@ -300,7 +300,21 @@ class Home extends Component
     }
     public function toggleSignState()
     {
+        // Get the current time
+        $currentTime = Carbon::now();
+
+        // Check if the session contains the last execution time
+        $lastExecutionTime = session('last_execution_time');
+
+        // If there is a last execution time, check if it was less than 30 seconds ago
+        if ($lastExecutionTime && $currentTime->diffInSeconds($lastExecutionTime) < 1) {
+            return; // Prevent the method from executing if it was called less than 30 seconds ago
+        }
+
         try {
+            // Update the session with the current time as the last execution time
+            session(['last_execution_time' => $currentTime]);
+
             $todayDate = Carbon::now()->format('Y-m-d');
             $employeeId = auth()->guard('emp')->user()->emp_id;
             $isonleave = $this->isEmployeeLeaveOnDate($todayDate, $employeeId);
@@ -317,17 +331,15 @@ class Home extends Component
                 return;
             }
 
-            // $deviceName = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown Device';
+            // Detect device type
             $agent = new Agent();
-
-            // Determine the device type
             if ($agent->isMobile()) {
                 $deviceName = 'Mobile';
             } elseif ($agent->isTablet()) {
                 $deviceName = 'Tablet';
             } elseif ($agent->isDesktop()) {
-                $screenWidth = $_SERVER['HTTP_UA_PIXELS'] ?? null; // Example, actual detection may vary
-                if ($screenWidth && $screenWidth < 1440) { // Example threshold for laptops
+                $screenWidth = $_SERVER['HTTP_UA_PIXELS'] ?? null;
+                if ($screenWidth && $screenWidth < 1440) {
                     $deviceName = 'Laptop';
                 } else {
                     $deviceName = 'Desktop';
@@ -336,31 +348,30 @@ class Home extends Component
                 $deviceName = 'Unknown Device';
             }
 
+            // Create the swipe record
             SwipeRecord::create([
                 'emp_id' => $this->employeeDetails->emp_id,
                 'swipe_time' => now()->format('H:i:s'),
-                'in_or_out' => $this->swipes
-                    ? ($this->swipes->in_or_out == "IN" ? "OUT" : "IN")
-                    : 'IN',
+                'in_or_out' => $this->swipes ? ($this->swipes->in_or_out == "IN" ? "OUT" : "IN") : 'IN',
                 'sign_in_device' => $deviceName,
             ]);
 
-            $flashMessage = $this->swipes
-                ? ($this->swipes->in_or_out == "IN" ? "OUT" : "IN")
-                : 'IN';
-
+            // Set the message based on the swipe direction
+            $flashMessage = $this->swipes ? ($this->swipes->in_or_out == "IN" ? "OUT" : "IN") : 'IN';
             $message = $flashMessage == "IN"
                 ? "You have successfully signed in."
                 : "You have successfully signed out.";
+
             if ($message) {
                 FlashMessageHelper::flashSuccess($message);
                 return false;
             }
         } catch (Throwable $e) {
-            // Log or handle the exception as needed
+            // Handle any errors and display an error message
             FlashMessageHelper::flashError("An error occurred while toggling sign state. Please try again later.");
         }
     }
+
     public function showEarlyEmployees()
     {
         $this->whoisinTitle = 'On Time';

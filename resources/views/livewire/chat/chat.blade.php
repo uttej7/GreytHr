@@ -1,43 +1,28 @@
 <div class="container-fluid my-1" id='chartScreen'>
     <div class="wrapper-canvas bg-white">
-         {{-- chat side bar --}}
-         <livewire:chat.chat-side-bar />
-           {{-- chat list --}}
-           <livewire:chat.chat-list />
-            <div class="box-info-content" id="content-chart">
-                <div class="top">
-                    <a href="#" id="back" class="btn back">
-                        <span class="material-icons">
-                            chevron_left
-                        </span>
-                    </a>
-                    <div class="menu-right">
-                        <!-- <div class="item">
-                            <a href="#" class="btn">
-                                <span class="material-icons">
-                                    person_add
-                                </span>
-                            </a>
-                        </div>
-                        <div class="item">
-                            <a href="#" class="btn">
-                                <span class="material-icons">
-                                    search
-                                </span>
-                            </a>
-                        </div> -->
-                        <!-- <div class="item">
-                            <div class="avatar-chart">
-                                <img src="images/images/avatarr-default.jpeg" alt="">
-                                <span class="dot -online"></span>
-                            </div>
-                        </div> -->
-                    </div>
+        {{-- chat side bar --}}
+        <livewire:chat.chat-side-bar />
+        {{-- chat list --}}
+        <livewire:chat.chat-list />
+        <div class="box-info-content" id="content-chart">
+            <div class="top">
+                <a href="#" id="back" class="btn back">
+                    <span class="material-icons">
+                        chevron_left
+                    </span>
+                </a>
+                <div class="menu-right">
                 </div>
-              {{-- chat body --}}
-              <livewire:chat.chat-box />
+            </div>
+            {{-- chat body --}}
+            <livewire:chat.chat-box />
+            {{-- chat send message --}}
+            <div class="chat-footer">
+                <livewire:chat.chat-send-message />
             </div>
 
+        </div>
+        {{-- Chat Settings --}}
         <div id="settings" class="container-fluid light-style flex-grow-1 container-p-y" style="overflow: auto;">
             <h4 class="font-weight-bold py-3 mb-4">
                 Account settings
@@ -67,13 +52,14 @@
 
                                     <div class="media-body ml-4">
                                         <img src="https://bootdey.com/img/Content/avatar-chart/avatar1.png" alt
-                                        class="ui-w-80">
+                                            class="ui-w-80">
                                         <label class="btn btn-outline-primary">
                                             Upload new photo
                                             <input type="file" class="account-settings-fileinput">
                                         </label> &nbsp;
                                         <button type="button" class="btn btn-default md-btn-flat">Reset</button>
-                                        <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+                                        <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K
+                                        </div>
                                     </div>
                                 </div>
                                 <hr class="border-light m-0">
@@ -120,8 +106,7 @@
                                 <div class="card-body pb-2">
                                     <div class="form-group">
                                         <label class="form-label">Bio</label>
-                                        <textarea class="form-control"
-                                            rows="5">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nunc arcu, dignissim sit amet sollicitudin iaculis, vehicula id urna. Sed luctus urna nunc. Donec fermentum, magna sit amet rutrum pretium, turpis dolor molestie diam, ut lacinia diam risus eleifend sapien. Curabitur ac nibh nulla. Maecenas nec augue placerat, viverra tellus non, pulvinar risus.</textarea>
+                                        <textarea class="form-control" rows="5">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nunc arcu, dignissim sit amet sollicitudin iaculis, vehicula id urna. Sed luctus urna nunc. Donec fermentum, magna sit amet rutrum pretium, turpis dolor molestie diam, ut lacinia diam risus eleifend sapien. Curabitur ac nibh nulla. Maecenas nec augue placerat, viverra tellus non, pulvinar risus.</textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Birthday</label>
@@ -135,7 +120,7 @@
                                             <option value="1">UK</option>
                                             <option value="2">Germany</option>
                                             <option value="3">France</option>
-                                          </select>
+                                        </select>
                                     </div>
                                 </div>
                                 <hr class="border-light m-0">
@@ -159,7 +144,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Facebook</label>
-                                        <input type="text" class="form-control" value="https://www.facebook.com/user">
+                                        <input type="text" class="form-control"
+                                            value="https://www.facebook.com/user">
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Google+</label>
@@ -171,7 +157,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Instagram</label>
-                                        <input type="text" class="form-control" value="https://www.instagram.com/user">
+                                        <input type="text" class="form-control"
+                                            value="https://www.instagram.com/user">
                                     </div>
                                 </div>
                             </div>
@@ -212,7 +199,8 @@
                                                 <span class="switcher-yes"></span>
                                                 <span class="switcher-no"></span>
                                             </span>
-                                            <span class="switcher-label">Email me when someone comments on my article</span>
+                                            <span class="switcher-label">Email me when someone comments on my
+                                                article</span>
                                         </label>
                                     </div>
                                     <div class="form-group">

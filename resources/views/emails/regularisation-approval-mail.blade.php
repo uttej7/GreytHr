@@ -25,7 +25,7 @@
                     @foreach($details['regularisationRequests'] as $entry)
                         <tr>
                             <td style="text-align:center; padding:5px;">{{ $details['sender_id']}}</td>
-                            <td style="text-align:center; padding:5px;"> {{ \Carbon\Carbon::parse($entry['date'])->format('jS F Y') }} </td>
+                            <td style="text-align:center; padding:5px;"> {{ \Carbon\Carbon::parse($entry['date'])->format('jS M, Y') }}</td>
                             <td style="text-align:center; padding:5px;">{{ htmlspecialchars($entry['from']) }}</td>
                             <td style="text-align:center; padding:5px;">{{ htmlspecialchars($entry['to']) }}</td>
                             <td style="text-align:center; padding:10px;">{{ htmlspecialchars($entry['reason']) }}</td>

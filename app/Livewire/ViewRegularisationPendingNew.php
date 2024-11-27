@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Helpers\FlashMessageHelper;
 use App\Mail\ManagerNotificationMail;
 use App\Mail\RegularisationApprovalMail;
+use App\Mail\RegularisationCombinedMail;
 use App\Mail\RegularisationRejectionMail;
 use App\Models\EmployeeDetails;
 use App\Models\HolidayCalendar;
@@ -275,7 +276,7 @@ class ViewRegularisationPendingNew extends Component
  
  
     // Send email to manager
-      Mail::to($this->employeeEmailForApproval)->send(new RegularisationApprovalMail($details));
+      Mail::to($this->employeeEmailForApproval)->send(new RegularisationCombinedMail($details));
     }
     public function searchRegularisation()
     {
